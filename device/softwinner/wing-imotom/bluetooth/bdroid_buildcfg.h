@@ -1,0 +1,8 @@
+#ifndef _BDROID_BUILDCFG_H
+#define _BDROID_BUILDCFG_H
+    #define BTM_DEF_LOCAL_NAME "wing-imotom"
+#define BTA_DM_COD {0x5A,0x01,0x1C}
+#define BTIF_HF_SERVICES (BTA_HSP_SERVICE_MASK)
+#define BTIF_HF_SERVICE_NAMES {BTIF_HSAG_SERVICE_NAME}
+
+#endif

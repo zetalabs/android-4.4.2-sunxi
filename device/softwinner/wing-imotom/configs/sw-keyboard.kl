@@ -1,0 +1,12 @@
+key 102   HOME              WAKE
+key 158   BACK              WAKE
+key 139	MENU         	  WAKE_DROPPED
+key 115	VOLUME_UP
+key 114	VOLUME_DOWN
+key 108   DPAD_DOWN          WAKE_DROPPED
+key 103   DPAD_UP            WAKE_DROPPED
+key 28    ENTER              WAKE
+key 217   SEARCH             WAKE 	   
+key 1     ESC                WAKE
+key 103	UP                 WAKE
+key 108   DOWN               WAKE
