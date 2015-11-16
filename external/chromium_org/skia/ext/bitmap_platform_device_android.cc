@@ -10,7 +10,7 @@ namespace skia {
 BitmapPlatformDevice* BitmapPlatformDevice::Create(int width, int height,
                                                    bool is_opaque) {
   SkBitmap bitmap;
-  bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height, (size_t));
+  bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height);
   if (bitmap.allocPixels()) {
     bitmap.setIsOpaque(is_opaque);
     // Follow the logic in SkCanvas::createDevice(), initialize the bitmap if it
@@ -35,7 +35,7 @@ BitmapPlatformDevice* BitmapPlatformDevice::Create(int width, int height,
                                                    bool is_opaque,
                                                    uint8_t* data) {
   SkBitmap bitmap;
-  bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height, (size_t));
+  bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height);
   if (data)
     bitmap.setPixels(data);
   else if (!bitmap.allocPixels())
@@ -87,7 +87,7 @@ PlatformBitmap::~PlatformBitmap() {
 }
 
 bool PlatformBitmap::Allocate(int width, int height, bool is_opaque) {
-  bitmap_.setConfig(SkBitmap::kARGB_8888_Config, width, height, (size_t));
+  bitmap_.setConfig(SkBitmap::kARGB_8888_Config, width, height);
   if (!bitmap_.allocPixels())
     return false;
 

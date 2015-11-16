@@ -204,7 +204,7 @@ SkCanvas* SkPicture::beginRecording(int width, int height,
     }
 
     SkBitmap bm;
-    bm.setConfig(SkBitmap::kNo_Config, width, height, (size_t)0);
+    bm.setConfig(SkBitmap::kNo_Config, width, height);
     SkAutoTUnref<SkDevice> dev(SkNEW_ARGS(SkDevice, (bm)));
 
     // Must be set before calling createBBoxHierarchy

@@ -150,7 +150,7 @@ bool SkErodeImageFilter::onFilterImage(Proxy* proxy,
         return false;
     }
 
-    dst->setConfig(src.config(), src.width(), src.height(), (size_t)0);
+    dst->setConfig(src.config(), src.width(), src.height());
     dst->allocPixels();
 
     int width = radius().width();
@@ -166,7 +166,7 @@ bool SkErodeImageFilter::onFilterImage(Proxy* proxy,
     }
 
     SkBitmap temp;
-    temp.setConfig(dst->config(), dst->width(), dst->height(), (size_t)0);
+    temp.setConfig(dst->config(), dst->width(), dst->height());
     if (!temp.allocPixels()) {
         return false;
     }
@@ -198,7 +198,7 @@ bool SkDilateImageFilter::onFilterImage(Proxy* proxy,
         return false;
     }
 
-    dst->setConfig(src.config(), src.width(), src.height(), (size_t)0);
+    dst->setConfig(src.config(), src.width(), src.height());
     dst->allocPixels();
 
     int width = radius().width();
@@ -214,7 +214,7 @@ bool SkDilateImageFilter::onFilterImage(Proxy* proxy,
     }
 
     SkBitmap temp;
-    temp.setConfig(dst->config(), dst->width(), dst->height(), (size_t)0);
+    temp.setConfig(dst->config(), dst->width(), dst->height());
     if (!temp.allocPixels()) {
         return false;
     }

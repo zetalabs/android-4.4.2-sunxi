@@ -15,7 +15,7 @@
 #include "SkGr.h"
 
 bool SkImageFilterUtils::WrapTexture(GrTexture* texture, int width, int height, SkBitmap* result) {
-    result->setConfig(SkBitmap::kARGB_8888_Config, width, height, (size_t)0);
+    result->setConfig(SkBitmap::kARGB_8888_Config, width, height);
     result->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (texture)))->unref();
     return true;
 }

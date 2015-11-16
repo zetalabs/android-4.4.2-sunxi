@@ -162,7 +162,7 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
         return false;
     }
 
-    dst->setConfig(src.config(), srcBounds.width(), srcBounds.height(), (size_t)0);
+    dst->setConfig(src.config(), srcBounds.width(), srcBounds.height());
     dst->getBounds(&dstBounds);
     dst->allocPixels();
     int kernelSizeX, kernelSizeX3, lowOffsetX, highOffsetX;
@@ -180,7 +180,7 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
     }
 
     SkBitmap temp;
-    temp.setConfig(dst->config(), dst->width(), dst->height(), (size_t)0);
+    temp.setConfig(dst->config(), dst->width(), dst->height());
     if (!temp.allocPixels()) {
         return false;
     }

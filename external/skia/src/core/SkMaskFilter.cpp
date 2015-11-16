@@ -325,7 +325,7 @@ bool SkMaskFilter::filterMaskGPU(GrContext* context,
         return false;
     }
 
-    resultBM->setConfig(srcBM.config(), dst->width(), dst->height(), (size_t)0);
+    resultBM->setConfig(srcBM.config(), dst->width(), dst->height());
     resultBM->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (dst)))->unref();
     dst->unref();
     return true;

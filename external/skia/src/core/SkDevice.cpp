@@ -55,7 +55,7 @@ SkDevice::SkDevice(SkBitmap::Config config, int width, int height, bool isOpaque
     fOrigin.setZero();
     fMetaData = NULL;
 
-    fBitmap.setConfig(config, width, height, (size_t)0);
+    fBitmap.setConfig(config, width, height);
     fBitmap.allocPixels();
     fBitmap.setIsOpaque(isOpaque);
     if (!isOpaque) {
@@ -73,7 +73,7 @@ SkDevice::SkDevice(SkBitmap::Config config, int width, int height, bool isOpaque
     fOrigin.setZero();
     fMetaData = NULL;
 
-    fBitmap.setConfig(config, width, height, (size_t)0);
+    fBitmap.setConfig(config, width, height);
     fBitmap.allocPixels();
     fBitmap.setIsOpaque(isOpaque);
     if (!isOpaque) {

@@ -99,7 +99,7 @@ bool SkBicubicImageFilter::onFilterImage(Proxy* proxy,
                                     SkScalarMul(SkIntToScalar(src.height()), fScale.fHeight));
     SkIRect dstIRect;
     dstRect.roundOut(&dstIRect);
-    result->setConfig(src.config(), dstIRect.width(), dstIRect.height(), (size_t)0);
+    result->setConfig(src.config(), dstIRect.width(), dstIRect.height());
     result->allocPixels();
     if (!result->getPixels()) {
         return false;

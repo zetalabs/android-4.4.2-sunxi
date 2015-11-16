@@ -879,7 +879,7 @@ bool SkDiffuseLightingImageFilter::onFilterImage(Proxy*,
         return false;
     }
 
-    dst->setConfig(src.config(), bounds.width(), bounds.height(), (size_t)0);
+    dst->setConfig(src.config(), bounds.width(), bounds.height());
     dst->allocPixels();
 
     DiffuseLightingType lightingType(fKD);
@@ -955,7 +955,7 @@ bool SkSpecularLightingImageFilter::onFilterImage(Proxy*,
         return false;
     }
 
-    dst->setConfig(src.config(), bounds.width(), bounds.height(), (size_t)0);
+    dst->setConfig(src.config(), bounds.width(), bounds.height());
     dst->allocPixels();
 
     SpecularLightingType lightingType(fKS, fShininess);
