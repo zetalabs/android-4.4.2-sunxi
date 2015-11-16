@@ -266,6 +266,38 @@ void SkBitmap::getBounds(SkIRect* bounds) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void SkBitmap::setConfig(Config c, int width, int height) {
+    size_t rowBytes = 0;
+
+    this->freePixels();
+
+    if ((width | height) < 0) {
+        goto err;
+    }
+
+    if (rowBytes == 0) {
+        rowBytes = SkBitmap::ComputeRowBytes(c, width);
+        if (0 == rowBytes && kNo_Config != c) {
+            goto err;
+        }
+    }
+
+    fConfig     = SkToU8(c);
+    fWidth      = width;
+    fHeight     = height;
+    fRowBytes   = SkToU32(rowBytes);
+
+    fBytesPerPixel = (uint8_t)ComputeBytesPerPixel(c);
+
+    SkDEBUGCODE(this->validate();)
+    return;
+
+    // if we got here, we had an error, so we reset the bitmap to empty
+err:
+    this->reset();
+}
+
+
 void SkBitmap::setConfig(Config c, int width, int height, int rowBytes) {
     this->freePixels();
 
