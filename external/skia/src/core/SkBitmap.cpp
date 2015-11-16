@@ -992,7 +992,7 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
         SkPixelRef* pixelRef = fPixelRef->deepCopy(this->config(), &subset);
         if (pixelRef != NULL) {
             SkBitmap dst;
-            dst.setConfig(this->config(), subset.width(), subset.height());
+            dst.setConfig(this->config(), subset.width(), subset.height(), (size_t));
             dst.setIsVolatile(this->isVolatile());
             dst.setIsOpaque(this->isOpaque());
             dst.setPixelRef(pixelRef)->unref();
@@ -1104,7 +1104,7 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
     }
 
     SkBitmap tmpDst;
-    tmpDst.setConfig(dstConfig, src->width(), src->height());
+    tmpDst.setConfig(dstConfig, src->width(), src->height(), (size_t));
 
     // allocate colortable if srcConfig == kIndex8_Config
     SkColorTable* ctable = (dstConfig == kIndex8_Config) ?
