@@ -395,7 +395,7 @@ void LazyPixelRefUtils::GatherPixelRefs(
 
   SkBitmap empty_bitmap;
   empty_bitmap.setConfig(
-      SkBitmap::kNo_Config, picture->width(), picture->height(), (size_t));
+      SkBitmap::kNo_Config, picture->width(), picture->height());
 
   GatherPixelRefDevice device(empty_bitmap, &pixel_ref_set);
   NoSaveLayerCanvas canvas(&device);

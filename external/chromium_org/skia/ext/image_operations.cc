@@ -394,7 +394,7 @@ SkBitmap ImageOperations::ResizeSubpixel(const SkBitmap& source,
   // Render into subpixels.
   SkBitmap result;
   result.setConfig(SkBitmap::kARGB_8888_Config, dest_subset.width(),
-                   dest_subset.height(), (size_t));
+                   dest_subset.height());
   result.allocPixels(allocator, NULL);
   if (!result.readyToDraw())
     return img;
@@ -511,7 +511,7 @@ SkBitmap ImageOperations::ResizeBasic(const SkBitmap& source,
   // Convolve into the result.
   SkBitmap result;
   result.setConfig(SkBitmap::kARGB_8888_Config,
-                   dest_subset.width(), dest_subset.height(), (size_t));
+                   dest_subset.width(), dest_subset.height());
   result.allocPixels(allocator, NULL);
   if (!result.readyToDraw())
     return SkBitmap();
