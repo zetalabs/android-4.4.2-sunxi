@@ -266,68 +266,8 @@ void SkBitmap::getBounds(SkIRect* bounds) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkBitmap::setConfig(Config c, int width, int height) {
-    size_t rowBytes = 0;
-
-    this->freePixels();
-
-    if ((width | height) < 0) {
-        goto err;
-    }
-
-    if (rowBytes == 0) {
-        rowBytes = SkBitmap::ComputeRowBytes(c, width);
-        if (0 == rowBytes && kNo_Config != c) {
-            goto err;
-        }
-    }
-
-    fConfig     = SkToU8(c);
-    fWidth      = width;
-    fHeight     = height;
-    fRowBytes   = SkToU32(rowBytes);
-
-    fBytesPerPixel = (uint8_t)ComputeBytesPerPixel(c);
-
-    SkDEBUGCODE(this->validate();)
-    return;
-
-    // if we got here, we had an error, so we reset the bitmap to empty
-err:
-    this->reset();
-}
-
-
+//void SkBitmap::setConfig(Config c, int width, int height, size_t rowBytes) {
 void SkBitmap::setConfig(Config c, int width, int height, int rowBytes) {
-    this->freePixels();
-
-    if ((width | height) < 0) {
-        goto err;
-    }
-
-    if (rowBytes == 0) {
-        rowBytes = SkBitmap::ComputeRowBytes(c, width);
-        if (0 == rowBytes && kNo_Config != c) {
-            goto err;
-        }
-    }
-
-    fConfig     = SkToU8(c);
-    fWidth      = width;
-    fHeight     = height;
-    fRowBytes   = SkToU32(rowBytes);
-
-    fBytesPerPixel = (uint8_t)ComputeBytesPerPixel(c);
-
-    SkDEBUGCODE(this->validate();)
-    return;
-
-    // if we got here, we had an error, so we reset the bitmap to empty
-err:
-    this->reset();
-}
-
-void SkBitmap::setConfig(Config c, int width, int height, size_t rowBytes) {
     this->freePixels();
 
     if ((width | height) < 0) {
@@ -1024,7 +964,7 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
         SkPixelRef* pixelRef = fPixelRef->deepCopy(this->config(), &subset);
         if (pixelRef != NULL) {
             SkBitmap dst;
-            dst.setConfig(this->config(), subset.width(), subset.height(), (size_t));
+            dst.setConfig(this->config(), subset.width(), subset.height());
             dst.setIsVolatile(this->isVolatile());
             dst.setIsOpaque(this->isOpaque());
             dst.setPixelRef(pixelRef)->unref();
@@ -1136,7 +1076,7 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
     }
 
     SkBitmap tmpDst;
-    tmpDst.setConfig(dstConfig, src->width(), src->height(), (size_t));
+    tmpDst.setConfig(dstConfig, src->width(), src->height());
 
     // allocate colortable if srcConfig == kIndex8_Config
     SkColorTable* ctable = (dstConfig == kIndex8_Config) ?

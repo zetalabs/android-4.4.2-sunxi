@@ -248,9 +248,8 @@ public:
         ComputeRowBytes() is called to compute the optimal value. This resets
         any pixel/colortable ownership, just like reset().
     */
-    void setConfig(Config, int width, int height);
+    //void setConfig(Config, int width, int height, size_t rowBytes = 0);
     void setConfig(Config, int width, int height, int rowBytes = 0);
-    void setConfig(Config, int width, int height, size_t rowBytes = 0);
     /** Use this to assign a new pixel address for an existing bitmap. This
         will automatically release any pixelref previously installed. Only call
         this if you are handling ownership/lifetime of the pixel memory.
