@@ -113,6 +113,8 @@ private:
 
     bool mInPreparationPhase;
 
+    sp<LiveDataSource> mDataSource;
+
     sp<HTTPBase> mHTTPDataSource;
     KeyedVector<String8, String8> mExtraHeaders;
 
