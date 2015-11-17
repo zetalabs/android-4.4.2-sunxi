@@ -23,7 +23,7 @@
 #define KEY_HOME			102
 #define KEY_VOLUMEDOWN		114
 #define KEY_VOLUMEUP		115
-#define KEY_ENTER			116
+#define KEY_ENTER		116
 
 static const char* HEADERS[] = { "Volume up/down to move highlight;",
                                  "enter button to select.",
@@ -34,10 +34,13 @@ static const char* ITEMS[] =  {"reboot system now",
                                "apply update from ADB",
                                "wipe data/factory reset",
                                "wipe cache partition",
+                               "apply update from internal storage",
                                "apply update from external storage",
-                               "apply update from TF card",
                                "apply update from cache",
                                NULL };
+
+static const char* INTSTORAGE = "/sdcard";
+static const char* EXTSTORAGE = "/extsd";
 
 class DefaultUI : public ScreenRecoveryUI {
   public:
@@ -82,8 +85,8 @@ class DefaultDevice : public Device {
           case 1: return APPLY_ADB_SIDELOAD;
           case 2: return WIPE_DATA;
           case 3: return WIPE_CACHE;
-          case 4: return APPLY_EXT;
-          case 5: return APPLY_TF;
+          case 4: return APPLY_INT;
+          case 5: return APPLY_EXT;
           case 6: return APPLY_CACHE;
           default: return NO_ACTION;
         }
@@ -91,6 +94,9 @@ class DefaultDevice : public Device {
 
     const char* const* GetMenuHeaders() { return HEADERS; }
     const char* const* GetMenuItems() { return ITEMS; }
+
+    const char* GetIntStoragePath() { return INTSTORAGE; }
+    const char* GetExtStoragePath() { return EXTSTORAGE; }
 
   private:
     RecoveryUI* ui;
