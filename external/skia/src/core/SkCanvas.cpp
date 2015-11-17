@@ -670,8 +670,7 @@ bool SkCanvas::readPixels(const SkIRect& srcRect, SkBitmap* bitmap) {
 
     SkBitmap tmp;
     tmp.setConfig(SkBitmap::kARGB_8888_Config, bounds.width(),
-                                               bounds.height(),
-                                               (size_t)0);
+                                               bounds.height());
     if (this->readPixels(&tmp, bounds.fLeft, bounds.fTop)) {
         bitmap->swap(tmp);
         return true;
