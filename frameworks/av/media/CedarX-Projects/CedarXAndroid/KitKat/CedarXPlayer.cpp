@@ -54,8 +54,10 @@
 #include <surfaceflinger/ISurfaceComposer.h>
 #endif
 
-#include <gui/ISurfaceTexture.h>
-#include <gui/SurfaceTextureClient.h>
+//#include <gui/ISurfaceTexture.h>
+//#include <gui/SurfaceTextureClient.h>
+#include <gui/IGraphicBufferProducer.h>
+#include <gui/Surface.h>
 
 #include <include_sft/StreamingSource.h>
 
@@ -63,7 +65,8 @@
 #include <cutils/properties.h>
 
 #include <CDX_Subtitle.h>
-#include <SubtitleRender.h>
+#include <include_render/SubtitleRender.h>
+#include <include_render/video_render.h>
 
 #include "unicode/ucnv.h"
 #include "unicode/ustring.h"
@@ -164,7 +167,7 @@ private:
 
 #if 0
 #define GET_CALLING_PID	(IPCThreadState::self()->getCallingPid())
-static int getCallingProcessName(char *name)
+static int32_t getCallingProcessName(char *name)
 {
 	char proc_node[128];
 
@@ -176,7 +179,7 @@ static int getCallingProcessName(char *name)
 	
 	memset(proc_node, 0, sizeof(proc_node));
 	sprintf(proc_node, "/proc/%d/cmdline", GET_CALLING_PID);
-	int fp = ::open(proc_node, O_RDONLY);
+	int32_t fp = ::open(proc_node, O_RDONLY);
 	if (fp > 0) 
 	{
 		memset(name, 0, 128);
@@ -193,10 +196,10 @@ static int getCallingProcessName(char *name)
     }
 }
 
-int IfContextNeedGPURender()
+int32_t IfContextNeedGPURender()
 {
-    int GPURenderFlag = 0;
-    int ret;
+    int32_t GPURenderFlag = 0;
+    int32_t ret;
     char mCallingProcessName[128];    
     memset(mCallingProcessName, 0, sizeof(mCallingProcessName));	
     ret = getCallingProcessName(mCallingProcessName);	
@@ -1034,16 +1037,15 @@ status_t CedarXPlayer::setSurface(const sp<Surface> &surface) {
     return setNativeWindow_l(surface);
 }
 
-status_t CedarXPlayer::setSurfaceTexture(const sp<ISurfaceTexture> &surfaceTexture) {
+status_t CedarXPlayer::setSurfaceTexture(const sp<IGraphicBufferProducer> &bufferProducer) {
     //Mutex::Autolock autoLock(mLock);
 
-    //mSurface.clear();
-    LOGV("(f:%s, l:%d) surfaceTexture_p=%p", __FUNCTION__, __LINE__, surfaceTexture.get());
+    LOGV("(f:%s, l:%d) surfaceTexture_p=%p", __FUNCTION__, __LINE__, bufferProducer.get());
 
     status_t err;
-    if (surfaceTexture != NULL) {
+    if (bufferProducer != NULL) {
         LOGV("(f:%s, l:%d) surfaceTexture!=NULL", __FUNCTION__, __LINE__);
-        err = setNativeWindow_l(new SurfaceTextureClient(surfaceTexture));
+        err = setNativeWindow_l(new Surface(bufferProducer));
     } else {
         LOGV("(f:%s, l:%d) surfaceTexture==NULL", __FUNCTION__, __LINE__);
         err = setNativeWindow_l(NULL);
@@ -1090,7 +1092,7 @@ status_t CedarXPlayer::getDuration(int64_t *durationUs) {
 	    return OK;
 	}
 
-	mPlayer->control(mPlayer, CDX_CMD_GET_DURATION, (unsigned int)durationUs, 0);
+	mPlayer->control(mPlayer, CDX_CMD_GET_DURATION, (unsigned int32_t)durationUs, 0);
 	*durationUs *= 1000;
 	mDurationUs = *durationUs;
 
@@ -1123,7 +1125,7 @@ status_t CedarXPlayer::getPosition(int64_t *positionUs) {
 	{
 		//Mutex::Autolock autoLock(mLock);
 		if(mPlayer != NULL){
-			mPlayer->control(mPlayer, CDX_CMD_GET_POSITION, (unsigned int)positionUs, 0);
+			mPlayer->control(mPlayer, CDX_CMD_GET_POSITION, (unsigned int32_t)positionUs, 0);
 		}
 	}
 
@@ -1156,7 +1158,7 @@ status_t CedarXPlayer::seekTo(int64_t timeMs) {
 	LOGV("seek to time %lld, mSeeking %d", timeMs, mSeeking);
 	if (mAwesomePlayer)
 	{
-		int ret;
+		int32_t ret;
 		ret = mAwesomePlayer->seekTo(timeMs * 1000);
 		return ret;
 	}
@@ -1211,14 +1213,14 @@ status_t CedarXPlayer::seekTo(int64_t timeMs) {
 	}
 
 	//mPlayer->control(mPlayer, CDX_CMD_SET_AUDIOCHANNEL_MUTE, 3, 0);
-	mPlayer->control(mPlayer, CDX_CMD_SEEK_ASYNC, (int)timeMs, (int)(currPositionUs/1000));
+	mPlayer->control(mPlayer, CDX_CMD_SEEK_ASYNC, (int32_t)timeMs, (int32_t)(currPositionUs/1000));
 
 	LOGV("seek cmd to %lld s end", timeMs/1000);
 
 	return OK;
 }
 
-void CedarXPlayer::finishAsyncPrepare_l(int err){
+void CedarXPlayer::finishAsyncPrepare_l(int32_t err){
     LOGV("(f:%s, l:%d) err[%d]", __FUNCTION__, __LINE__, err);
 	if (mAwesomePlayer) {
 		//fd music
@@ -1246,9 +1248,9 @@ void CedarXPlayer::finishAsyncPrepare_l(int err){
 		return;
 	}
 
-	mPlayer->control(mPlayer, CDX_CMD_GET_STREAM_TYPE, (unsigned int)&mStreamType, 0);
+	mPlayer->control(mPlayer, CDX_CMD_GET_STREAM_TYPE, (unsigned int32_t)&mStreamType, 0);
 	if(mSourceType != SOURCETYPE_FD) {
-		mPlayer->control(mPlayer, CDX_CMD_GET_MEDIAINFO, (unsigned int)&mMediaInfo, 0);
+		mPlayer->control(mPlayer, CDX_CMD_GET_MEDIAINFO, (unsigned int32_t)&mMediaInfo, 0);
 	}
 	//if(mStreamType != CEDARX_STREAM_LOCALFILE) {
 	mFlags &= ~CACHE_UNDERRUN;
@@ -1283,7 +1285,7 @@ void CedarXPlayer::finishAsyncPrepare_l(int err){
 	return;
 }
 
-void CedarXPlayer::finishSeek_l(int err){
+void CedarXPlayer::finishSeek_l(int32_t err){
 	Mutex::Autolock autoLock(mLock);
 	LOGV("finishSeek_l");
 
@@ -1304,9 +1306,9 @@ void CedarXPlayer::finishSeek_l(int err){
 status_t CedarXPlayer::prepareAsync() {
     LOGV("(f:%s, l:%d)", __FUNCTION__, __LINE__);
 	Mutex::Autolock autoLock(mLock);
-	int  outputSetting = 0;
-	int  disable_media_type = 0;
-	char prop_value[4];
+	int32_t  outputSetting = 0;
+	int32_t  disable_media_type = 0;
+	char prop_value[128];
 
 	if ((mFlags & PREPARING) || (mPlayer == NULL)) {
 		return UNKNOWN_ERROR; // async prepare already pending

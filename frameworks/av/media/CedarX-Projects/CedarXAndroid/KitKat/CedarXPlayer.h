@@ -143,7 +143,7 @@ struct CedarXPlayer { //don't touch this struct any more, you can extend members
             const char *uri,
             const KeyedVector<String8, String8> *headers = NULL);
 
-    status_t setDataSource(int fd, int64_t offset, int64_t length);
+    status_t setDataSource(int32_t fd, int64_t offset, int64_t length);
     status_t setDataSource(const sp<IStreamSource> &source);
 
     void reset();
@@ -161,15 +161,16 @@ struct CedarXPlayer { //don't touch this struct any more, you can extend members
     bool isPlaying() const;
 
     status_t setSurface(const sp<Surface> &surface);
-    status_t setSurfaceTexture(const sp<ISurfaceTexture> &surfaceTexture);
+//    status_t setSurfaceTexture(const sp<ISurfaceTexture> &surfaceTexture);
+    status_t setSurfaceTexture(const sp<IGraphicBufferProducer> &bufferProducer);
     void setAudioSink(const sp<MediaPlayerBase::AudioSink> &audioSink);
     status_t setLooping(bool shouldLoop);
 
     status_t getDuration(int64_t *durationUs);
     status_t getPosition(int64_t *positionUs);
 
-    status_t setParameter(int key, const Parcel &request);
-    status_t getParameter(int key, Parcel *reply);
+    status_t setParameter(int32_t key, const Parcel &request);
+    status_t getParameter(int32_t key, Parcel *reply);
     status_t setCacheStatCollectFreq(const Parcel &request);
     status_t seekTo(int64_t timeUs);
 
