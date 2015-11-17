@@ -82,26 +82,45 @@ LiveSession::LiveSession(uint32_t flags, bool uidValid, uid_t uid)
       mUIDValid(uidValid),
       mUID(uid),
       mDataSource(new LiveDataSource),
+      mInPreparationPhase(true),
       mHTTPDataSource(
               HTTPBase::Create(
                   (mFlags & kFlagIncognito)
                     ? HTTPBase::kFlagIncognito
                     : 0)),
       mPrevBandwidthIndex(-1),
-      mLastPlaylistFetchTimeUs(-1),
-      mSeqNumber(-1),
-      mSeekTimeUs(-1),
-      mNumRetries(0),
-      mStartOfPlayback(true),
-      mDurationUs(-1),
-      mDurationFixed(false),
-      mSeekDone(false),
-      mDisconnectPending(false),
-      mMonitorQueueGeneration(0),
-      mRefreshState(INITIAL_MINIMUM_RELOAD_DELAY) {
+      //mLastPlaylistFetchTimeUs(-1),
+      //mSeqNumber(-1),
+      //mSeekTimeUs(-1),
+      //mNumRetries(0),
+      //mStartOfPlayback(true),
+      //mDurationUs(-1),
+      //mDurationFixed(false),
+      //mSeekDone(false),
+      //mDisconnectPending(false),
+      //mMonitorQueueGeneration(0),
+      //mRefreshState(INITIAL_MINIMUM_RELOAD_DELAY) {
+    //if (mUIDValid) {
+    //    mHTTPDataSource->setUID(mUID);
+    //}
+      mStreamMask(0),
+      mCheckBandwidthGeneration(0),
+      mLastDequeuedTimeUs(0ll),
+      mRealTimeBaseUs(0ll),
+      mReconfigurationInProgress(false),
+      mDisconnectReplyID(0) {
     if (mUIDValid) {
         mHTTPDataSource->setUID(mUID);
     }
+
+    mPacketSources.add(
+            STREAMTYPE_AUDIO, new AnotherPacketSource(NULL /* meta */));
+
+    mPacketSources.add(
+            STREAMTYPE_VIDEO, new AnotherPacketSource(NULL /* meta */));
+
+    mPacketSources.add(
+            STREAMTYPE_SUBTITLES, new AnotherPacketSource(NULL /* meta */));
 }
 
 LiveSession::~LiveSession() {

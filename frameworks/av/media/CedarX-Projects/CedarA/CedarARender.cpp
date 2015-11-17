@@ -94,7 +94,8 @@ status_t CedarAAudioPlayer::start(bool sourceAlreadyStarted)
                 mSampleRate, mNumChannels, channelMask, AUDIO_FORMAT_PCM_16_BIT,
                 DEFAULT_AUDIOSINK_BUFFERCOUNT,
                 &CedarAAudioPlayer::AudioSinkCallback,
-                this, AUDIO_OUTPUT_FLAG_NONE);
+                this, AUDIO_OUTPUT_FLAG_NONE,
+                /*to do*//*useOffload() ? &offloadInfo : */NULL);
 #endif
         if (err != OK) {
             return err;
@@ -119,11 +120,10 @@ status_t CedarAAudioPlayer::start(bool sourceAlreadyStarted)
                 (mNumChannels == 2)
                     ? AUDIO_CHANNEL_OUT_STEREO
                     : AUDIO_CHANNEL_OUT_MONO,
-                0, 0, &AudioCallback, this, 0);
+                0, AUDIO_OUTPUT_FLAG_NONE, &AudioCallback, this, 0);
 #endif
         if ((err = mAudioTrack->initCheck()) != OK) {
-            delete mAudioTrack;
-            mAudioTrack = NULL;
+        	mAudioTrack.clear();
 
             return err;
         }
@@ -181,8 +181,7 @@ void CedarAAudioPlayer::reset()
     } else {
         mAudioTrack->stop();
 
-        delete mAudioTrack;
-        mAudioTrack = NULL;
+        mAudioTrack.clear();
     }
 
 
@@ -219,9 +218,28 @@ bool CedarAAudioPlayer::reachedEOS(status_t *finalStatus)
 // static
 size_t CedarAAudioPlayer::AudioSinkCallback(
         MediaPlayerBase::AudioSink *audioSink,
-        void *buffer, size_t size, void *cookie)
+        void *buffer, size_t size, void *cookie,
+        MediaPlayerBase::AudioSink::cb_event_t event)
 {
     CedarAAudioPlayer *me = (CedarAAudioPlayer *)cookie;
+
+    switch(event) {
+    case MediaPlayerBase::AudioSink::CB_EVENT_FILL_BUFFER:
+        return me->fillBuffer(buffer, size);
+
+    case MediaPlayerBase::AudioSink::CB_EVENT_STREAM_END:
+        ALOGV("AudioSinkCallback: stream end");
+        me->mReachedEOS = true;
+        //to do
+        //me->notifyAudioEOS();
+        break;
+
+    case MediaPlayerBase::AudioSink::CB_EVENT_TEAR_DOWN:
+        ALOGV("AudioSinkCallback: Tear down event");
+        //to do
+        //me->mObserver->postAudioTearDown();
+        break;
+    }
 
     return me->fillBuffer(buffer, size);
 }

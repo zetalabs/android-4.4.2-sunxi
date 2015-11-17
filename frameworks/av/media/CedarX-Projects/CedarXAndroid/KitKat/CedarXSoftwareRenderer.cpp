@@ -31,13 +31,20 @@
 #include <media/stagefright/foundation/ADebug.h>
 #include <media/stagefright/MetaData.h>
 #include <ui/GraphicBufferMapper.h>
-#include <gui/ISurfaceTexture.h>
+//#include <gui/ISurfaceTexture.h>
+#include <gui/Surface.h>
+
 
 #include "CedarXSoftwareRenderer.h"
+
+#include <hardware/hal_public.h>
+#include <linux/ion.h>
+#include <ion/ion.h>
 
 extern "C" {
 extern unsigned int cedarv_address_phy2vir(void *addr);
 }
+
 namespace android {
 
 CedarXSoftwareRenderer::CedarXSoftwareRenderer(
@@ -206,10 +213,14 @@ CedarXSoftwareRenderer::CedarXSoftwareRenderer(
 CedarXSoftwareRenderer::~CedarXSoftwareRenderer() {
 }
 
+#if 0
 static int ALIGN(int x, int y) {
     // y must be a power of 2.
     return (x + y - 1) & ~(y - 1);
 }
+#else
+#define ALIGN(x, y)	((x + y - 1) & ~(y - 1))
+#endif
 
 
 void CedarXSoftwareRenderer::render(const void *pObject, size_t size, void *platformPrivate)
@@ -219,7 +230,7 @@ void CedarXSoftwareRenderer::render(const void *pObject, size_t size, void *plat
     Virtuallibhwclayerpara *pVirtuallibhwclayerpara = (Virtuallibhwclayerpara*)pObject;
     int err;
 
-#if ((CEDARX_ANDROID_VERSION == 8) || (CEDARX_ANDROID_VERSION == 9))
+#if ((CEDARX_ANDROID_VERSION == 8) || (CEDARX_ANDROID_VERSION == 9) || (CEDARX_ANDROID_VERSION == 10))
     if ((err = mNativeWindow->dequeueBuffer_DEPRECATED(mNativeWindow.get(), &buf)) != 0) {
         LOGW("Surface::dequeueBuffer returned error %d", err);
         return;
@@ -405,7 +416,7 @@ void CedarXSoftwareRenderer::render(const void *pObject, size_t size, void *plat
 
     CHECK_EQ(0, mapper.unlock(buf->handle));
 
-#if ((CEDARX_ANDROID_VERSION == 8) || (CEDARX_ANDROID_VERSION == 9))
+#if ((CEDARX_ANDROID_VERSION == 8) || (CEDARX_ANDROID_VERSION == 9) || (CEDARX_ANDROID_VERSION == 10))
     if ((err = mNativeWindow->queueBuffer_DEPRECATED(mNativeWindow.get(), buf)) != 0) {
         LOGW("Surface::queueBuffer returned error %d", err);
     }
@@ -427,7 +438,7 @@ int CedarXSoftwareRenderer::dequeueFrame(ANativeWindowBufferCedarXWrapper *pObje
     ANativeWindowBufferCedarXWrapper *pANativeWindowBuffer = (ANativeWindowBufferCedarXWrapper*)pObject;
     int err;
 
-#if ((CEDARX_ANDROID_VERSION == 8) || (CEDARX_ANDROID_VERSION == 9))
+#if ((CEDARX_ANDROID_VERSION == 8) || (CEDARX_ANDROID_VERSION == 9) || (CEDARX_ANDROID_VERSION == 10))
     if ((err = mNativeWindow->dequeueBuffer_DEPRECATED(mNativeWindow.get(), &buf)) != 0) {
         LOGW("Surface::dequeueBuffer returned error %d", err);
         return -1;
@@ -503,7 +514,7 @@ int CedarXSoftwareRenderer::enqueueFrame(ANativeWindowBufferCedarXWrapper *pObje
     GraphicBufferMapper &mapper = GraphicBufferMapper::get();
     CHECK_EQ(0, mapper.unlock(buf->handle));
 
-#if ((CEDARX_ANDROID_VERSION == 8) || (CEDARX_ANDROID_VERSION == 9))
+#if ((CEDARX_ANDROID_VERSION == 8) || (CEDARX_ANDROID_VERSION == 9) || (CEDARX_ANDROID_VERSION == 10))
     if ((err = mNativeWindow->queueBuffer_DEPRECATED(mNativeWindow.get(), buf)) != 0) {
         LOGW("Surface::queueBuffer returned error %d", err);
     }
@@ -519,171 +530,3 @@ int CedarXSoftwareRenderer::enqueueFrame(ANativeWindowBufferCedarXWrapper *pObje
 
 }  // namespace android
 
-#if 0   //backup
-void CedarXSoftwareRenderer::render0(const void *data, size_t size, void *platformPrivate)
-{
-    ANativeWindowBuffer *buf;
-	libhwclayerpara_t*  pOverlayParam;
-    int err;
-
-#if (CEDARX_ANDROID_VERSION == 8)
-    if ((err = mNativeWindow->dequeueBuffer_DEPRECATED(mNativeWindow.get(), &buf)) != 0) {
-        LOGW("Surface::dequeueBuffer returned error %d", err);
-        return;
-    }
-    CHECK_EQ(0, mNativeWindow->lockBuffer_DEPRECATED(mNativeWindow.get(), buf));
-#else
-    if ((err = mNativeWindow->dequeueBuffer(mNativeWindow.get(), &buf)) != 0)
-    {
-        LOGW("Surface::dequeueBuffer returned error %d", err);
-        return;
-    }
-    CHECK_EQ(0, mNativeWindow->lockBuffer(mNativeWindow.get(), buf));
-#endif
-
-    GraphicBufferMapper &mapper = GraphicBufferMapper::get();
-
-
-    //a10_GPUbuffer_YV12, Y:16*2 align, UV:16*1 align.
-    //a10_vdecbuffer_YV12, Y:16*16 align, UV:16*8 align.
-    //a31_GPUbuffer_YV12, Y:32*2 align, UV:16*1 align.
-    //a31_vdecbuffer_YV12, Y:16*16 align, UV:16*8 or 8*8 align
-
-    //we make the rule: the buffersize request from GPU is Y:16*16 align!
-    //But in A31, gpu buffer is 32align in width at least, 
-    //so the requested a31_gpu_buffer is Y_32*16align, uv_16*8 actually.
-    
-    Rect bounds((mWidth+15)&~15, (mHeight+15)&~15);  
-    //Rect bounds(mWidth, mHeight);
-
-    void *dst;
-    CHECK_EQ(0, mapper.lock(buf->handle, GRALLOC_USAGE_SW_WRITE_OFTEN, bounds, &dst));
-
-    //LOGD("buf->stride:%d, buf->width:%d, buf->height:%d buf->format:%d, buf->usage:%d,WXH:%dx%d dst:%p data:%p", 
-    //    buf->stride, buf->width, buf->height, buf->format, buf->usage, mWidth, mHeight, dst, data);
-    
-    //LOGV("mColorFormat: %d", mColorFormat);
-#if defined(__CHIP_VERSION_F23)
-    size_t dst_y_size = buf->stride * buf->height;
-    size_t dst_c_stride = ALIGN(buf->stride / 2, 16);    //16
-    size_t dst_c_size = dst_c_stride * buf->height / 2;
-
-    int src_y_width = (mWidth+15)&~15;
-    int src_y_height = (mHeight+15)&~15;
-    int src_c_width = ALIGN(src_y_width / 2, 16);   //uv_width_align=16
-    int src_c_height = src_y_height/2;
-    int src_display_y_width = mWidth;
-    int src_display_y_height = mHeight;
-    int src_display_c_width = src_display_y_width/2;
-    int src_display_c_height = src_display_y_height/2;
-    
-    size_t src_display_y_size = src_y_width * src_display_y_height;
-    size_t src_display_c_size = src_c_width * src_display_c_height;
-    size_t src_y_size = src_y_width * src_y_height;
-    size_t src_c_size = src_c_width * src_c_height;
-    //LOGV("buf->stride:%d buf->height:%d WXH:%dx%d dst:%p data:%p", buf->stride, buf->height, mWidth, mHeight, dst, data);
-    //copy_method_1:
-    memcpy(dst, data, dst_y_size + dst_c_size*2);
-    //copy_method_2:
-    //memcpy(dst, data, src_y_size + src_c_size*2);
-    //copy_method_3:
-//    memcpy(dst, data, src_display_y_size);
-//    dst += dst_y_size;
-//    data += src_y_size;
-//    memcpy(dst, data, src_display_c_size);
-//    dst += dst_c_size;
-//    data += src_c_size;
-//    memcpy(dst, data, src_display_c_size);
-#elif defined(__CHIP_VERSION_F33)
-        pOverlayParam = (libhwclayerpara_t*)data;
-
-//    LOGD("buf->stride:%d buf->height:%d WXH:%dx%d cstride:%d", buf->stride, buf->height, mWidth, mHeight, dst_c_stride);
-//    {
-//    	struct timeval t;
-//    	int64_t startTime;
-//    	int64_t endTime;
-//
-//    	gettimeofday(&t, NULL);
-//    	startTime = (int64_t)t.tv_sec*1000000 + t.tv_usec;
-    {
-    	int i;
-    	int widthAlign;
-    	int heightAlign;
-    	int cHeight;
-    	int cWidth;
-    	int dstCStride;
-
-    	unsigned char* dstPtr;
-    	unsigned char* srcPtr;
-    	dstPtr = (unsigned char*)dst;
-    	srcPtr = (unsigned char*)cedarv_address_phy2vir((void*)pOverlayParam->addr[0]);
-    	widthAlign = (mWidth + 15) & ~15;
-    	heightAlign = (mHeight + 15) & ~15;
-    	for(i=0; i<heightAlign; i++)
-    	{
-    		memcpy(dstPtr, srcPtr, widthAlign);
-    		dstPtr += buf->stride;
-    		srcPtr += widthAlign;
-    	}
-
-    	cWidth = (mWidth/2 + 15) & ~15;
-    	cHeight = heightAlign;
-    	for(i=0; i<cHeight; i++)
-    	{
-    		memcpy(dstPtr, srcPtr, cWidth);
-    		dstPtr += cWidth;
-    		srcPtr += cWidth;
-    	}
-    }
-//        {
-//        	int height_align;
-//        	int width_align;
-//        	height_align = (buf->height+15) & ~15;
-//        	memcpy(dst, (void*)pOverlayParam->addr[0], dst_y_size);
-//        	memcpy((unsigned char*)dst + dst_y_size, (void*)(pOverlayParam->addr[0] + height_align*dst_c_stride), dst_c_size*2);
-//        }
-//    	gettimeofday(&t, NULL);
-//        endTime = (int64_t)t.tv_sec*1000000 + t.tv_usec;
-//        LOGD("memory copy cost %lld us for %d bytes.", endTime - startTime, dst_y_size + dst_c_size*2);
-//    }
-#else
-    #error "Unknown chip type!"
-#endif
-
-#if 0
-		{
-			static int dec_count = 0;
-			static FILE *fp;
-
-			if(dec_count == 60)
-			{
-				fp = fopen("/data/camera/t.yuv","wb");
-				LOGD("write start fp:%d addr:%p",fp,data);
-				fwrite(dst,1,buf->stride * buf->height,fp);
-				fwrite(dst + buf->stride * buf->height * 5/4,1,buf->stride * buf->height / 4,fp);
-				fwrite(dst + buf->stride * buf->height,1,buf->stride * buf->height / 4,fp);
-				fclose(fp);
-				LOGD("write finish");
-			}
-
-			dec_count++;
-		}
-#endif
-
-    CHECK_EQ(0, mapper.unlock(buf->handle));
-
-#if (CEDARX_ANDROID_VERSION == 8)
-    if ((err = mNativeWindow->queueBuffer_DEPRECATED(mNativeWindow.get(), buf)) != 0) {
-        LOGW("Surface::queueBuffer returned error %d", err);
-    }
-    buf = NULL;
-#else 
-    if ((err = mNativeWindow->queueBuffer(mNativeWindow.get(), buf)) != 0) {
-        LOGW("Surface::queueBuffer returned error %d", err);
-    }
-    buf = NULL;
-#endif
-
-}
-
-#endif

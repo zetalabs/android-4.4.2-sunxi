@@ -65,8 +65,8 @@
 #include <cutils/properties.h>
 
 #include <CDX_Subtitle.h>
-#include <include_render/SubtitleRender.h>
-#include <include_render/video_render.h>
+#include <include_subtitle_render/SubtitleRender.h>
+#include <include_subtitle_render/video_render.h>
 
 #include "unicode/ucnv.h"
 #include "unicode/ustring.h"

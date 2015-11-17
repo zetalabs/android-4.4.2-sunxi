@@ -25,6 +25,7 @@
 #include <hardware/hwcomposer.h>
 #include "VirtualHwcomposer.h"
 
+#include <CDX_PlayerAPI.h>
 #define ADAPT_A10_GPU_RENDER (1)
 #define ADAPT_A31_GPU_RENDER (1)
 

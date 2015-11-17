@@ -70,7 +70,7 @@ typedef struct VIDEOINFO_t
 	unsigned int qp_max;
 	unsigned int qp_min;
 
-	int is_mjpeg_source;
+	int is_compress_source; // 0 for common source 1: for mjpeg source 2: for h264 source
 }VIDEOINFO_t;
 
 typedef enum AUDIO_ENCODER_TYPE
