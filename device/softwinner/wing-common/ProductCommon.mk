@@ -163,10 +163,8 @@ PRODUCT_PACKAGES += \
 	
 # pre-installed apks
 PRODUCT_COPY_FILES += \
-	$(call find-copy-subdir-files,*.apk,$(LOCAL_PATH)/preinstallapk,system/preinstall) \
-	$(call find-copy-subdir-files,*,$(LOCAL_PATH)/apk,system/app) \
 	$(call find-copy-subdir-files,*,$(LOCAL_PATH)/apklib,system/lib) \
-	$(call find-copy-subdir-files,*,$(LOCAL_PATH)/googleservice/gapps-jb-20140910-signed/system,system) \
+	$(call find-copy-subdir-files,*,$(LOCAL_PATH)/googleservice/gapps-jb-20140910-signed/system,system)
 
 PRODUCT_PACKAGES += \
 		PartnerBookmarksProvider
