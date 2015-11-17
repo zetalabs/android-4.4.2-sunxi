@@ -43,8 +43,11 @@
 	#include <surfaceflinger/ISurfaceComposer.h>
 	#endif
 #else
-#include <gui/ISurfaceTexture.h>
-#include <gui/SurfaceTextureClient.h>
+//#include <gui/ISurfaceTexture.h>
+//#include <gui/SurfaceTextureClient.h>
+#include <gui/IGraphicBufferProducer.h>
+#include <gui/Surface.h>
+
 #include <media/stagefright/foundation/ADebug.h>
 #endif
 
@@ -281,7 +284,11 @@ status_t CedarAPlayer::setSurface(const sp<Surface> &surface) {
 }
 #endif
 
-status_t CedarAPlayer::setSurfaceTexture(const sp<ISurfaceTexture> &surfaceTexture) {
+//status_t CedarAPlayer::setSurfaceTexture(const sp<ISurfaceTexture> &surfaceTexture) {
+//    //Mutex::Autolock autoLock(mLock);
+//    return OK;
+//}
+status_t CedarAPlayer::setSurfaceTexture(const sp<IGraphicBufferProducer> &bufferProducer) {
     //Mutex::Autolock autoLock(mLock);
     return OK;
 }
@@ -585,12 +592,12 @@ int CedarAPlayer::CedarAPlayerCallback(int event, void *info)
         	if (para[0])
         	{
         		LOGV("[star]............ to set raw data output");
-            	af->setParameters(0, raw1);
+//            	af->setParameters(0, raw1);
         	}
         	else
         	{
         		LOGV("[star]............ to set not raw data output");
-            	af->setParameters(0, raw0);
+//            	af->setParameters(0, raw0);
         	}
         }
     	

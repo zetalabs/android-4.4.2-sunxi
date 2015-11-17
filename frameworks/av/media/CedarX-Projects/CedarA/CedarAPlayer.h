@@ -78,7 +78,7 @@ struct CedarAPlayer {
 #if (CEDARX_ANDROID_VERSION < 7)
     status_t setSurface(const sp<Surface> &surface);
 #endif
-    status_t setSurfaceTexture(const sp<ISurfaceTexture> &surfaceTexture);
+    status_t setSurfaceTexture(const sp<IGraphicBufferProducer> &bufferProducer);
     status_t setParameter(int key, const Parcel &request);
     status_t getParameter(int key, Parcel *reply);
     status_t setCacheStatCollectFreq(const Parcel &request);
