@@ -18,6 +18,7 @@
 #define LOG_TAG "LiveSession"
 #include <utils/Log.h>
 
+#include "LiveDataSource.h"
 #include "LiveSession.h"
 
 #include "M3UParser.h"
