@@ -81,7 +81,6 @@ static jint softwinner_tv_TVDecoder_setSize(JNIEnv * env,jobject jobj,jint x,jin
 
 static jint softwinner_tv_TVDecoder_setPreviewDisplay(JNIEnv * env,jobject jobj,jobject jSurface)
 {
-    sp<Surface> surface = NULL;
     jclass clazz = env->FindClass("android/view/Surface");
     jfieldID field_surface;
     field_surface = env->GetFieldID(clazz, ANDROID_VIEW_SURFACE_JNI_ID, "I");
@@ -90,11 +89,30 @@ static jint softwinner_tv_TVDecoder_setPreviewDisplay(JNIEnv * env,jobject jobj,
         ALOGE("########################field_surface is null\n");
         return -1;
     }
+    sp<IGraphicBufferProducer> bufferProducer = NULL;
     if (jSurface != NULL)
     {
-        surface = reinterpret_cast<Surface*>(env->GetIntField(jSurface, field_surface));
+#if 0
+        sp<Surface> surface(android_view_Surface_getSurface(env, jSurface));
+        if (surface != NULL) {
+            new_st = surface->getIGraphicBufferProducer();
+            if (new_st == NULL) {
+                jniThrowException(env, "java/lang/IllegalArgumentException",
+                    "The surface does not have a binding SurfaceTexture!");
+                return -1;
+            }
+            new_st->incStrong((void*)decVideoSurfaceRef);
+        } else {
+            jniThrowException(env, "java/lang/IllegalArgumentException",
+                    "The surface has been released");
+            return -1;
+        }
+#else
+        sp<Surface> surface = reinterpret_cast<Surface*>(env->GetIntField(jSurface, field_surface));
+        bufferProducer = surface->getIGraphicBufferProducer();
+#endif
     }
-    if (mClient->setPreviewDisplay(surface) != NO_ERROR)
+    if (mClient->setPreviewDisplay(bufferProducer) != NO_ERROR)
     {
         //jniThrowException(env, "java/io/IOException", "setPreviewDisplay failed");
     }

@@ -6,9 +6,9 @@
 #include <utils/RefBase.h>
 #include <gui/ISurfaceComposer.h>
 #include <gui/SurfaceComposerClient.h>
-#include <gui/ISurface.h>
+//#include <gui/ISurface.h>
 #include <gui/Surface.h>
-#include <gui/SurfaceTextureClient.h>
+//#include <gui/SurfaceTextureClient.h>
 #include <ui/FramebufferNativeWindow.h>
 #include <binder/MemoryHeapBase.h>
 #include <binder/ProcessState.h>
@@ -74,7 +74,7 @@ public:
     virtual status_t                stopDecoder();
     virtual status_t                setSize(int x,int y,int w,int h);
     virtual status_t                setColor(int luma,int contrast,int saturation,int hue);
-    virtual status_t                setPreviewDisplay(const sp<Surface>& surface);
+    virtual status_t                setPreviewDisplay(const sp<IGraphicBufferProducer>& bufferProducer);
     virtual status_t                setParameter(tvd_interface_t interface,tvd_system_t system,tvd_fmt_t format,tvd_channel_t channel,int mirror);
 
     virtual status_t                onTransact(uint32_t code, const Parcel& data,Parcel* reply, uint32_t flags);

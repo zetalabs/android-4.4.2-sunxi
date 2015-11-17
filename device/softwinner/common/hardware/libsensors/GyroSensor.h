@@ -32,24 +32,23 @@ struct input_event;
 
 class GyroSensor : public SensorBase {
 private:
-        int mEnabled;
-        int mPendingMask;
-        char input_sysfs_path[PATH_MAX];
-        int input_sysfs_path_len;
-        
-        InputEventCircularReader mInputReader;
-        
-        int gyroEnable(int en);
-        
-        sensors_event_t mPendingEvent;
+    int mEnabled;
+    char input_sysfs_path[PATH_MAX];
+    int input_sysfs_path_len;
+
+    InputEventCircularReader mInputReader;
+
+    int gyroEnable(int en);
+
+    sensors_event_t mPendingEvent;
 
 public:
-        GyroSensor();
-        virtual ~GyroSensor();
-        virtual int readEvents(sensors_event_t* data, int count);
-        virtual int setDelay(int32_t handle, int64_t ns);
-        virtual int setEnable(int32_t handle, int enabled);
-        void processEvent(int code, int value);
+    GyroSensor();
+    virtual ~GyroSensor();
+    virtual int readEvents(sensors_event_t* data, int count);
+    virtual int setDelay(int32_t handle, int64_t ns);
+    virtual int setEnable(int32_t handle, int enabled);
+    virtual void processEvent(int code, int value);
 
 };
 

@@ -23,6 +23,8 @@
 #include <binder/ProcessState.h>
 #include <binder/IServiceManager.h>
 
+#include <android/log.h>
+
 #include "../libtvdecoderservice/TVDecoderService.h"
 
 using namespace android;

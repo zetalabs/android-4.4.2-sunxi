@@ -23,7 +23,6 @@
 #include <sys/cdefs.h>
 #include <sys/types.h>
 
-
 #include "sensors.h"
 #include "SensorBase.h"
 #include "InputEventReader.h"
@@ -41,10 +40,10 @@ public:
     void processEvent(int code, int value);
 
 private:
-	int mEnabled;
-	int mPendingMask;
-	InputEventCircularReader mInputReader;
-	sensors_event_t mPendingEvent;
+    int mEnabled;
+    int mPendingMask;
+    InputEventCircularReader mInputReader;
+    sensors_event_t mPendingEvent;
 };
 
 /*****************************************************************************/

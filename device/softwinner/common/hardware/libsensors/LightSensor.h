@@ -40,7 +40,7 @@ class LightSensor : public SensorBase {
     float mPreviousLight;
 
 public:
-            LightSensor();
+    LightSensor();
     virtual ~LightSensor();
     virtual int setDelay(int32_t handle, int64_t ns);
     virtual int setEnable(int32_t handle, int enabled);

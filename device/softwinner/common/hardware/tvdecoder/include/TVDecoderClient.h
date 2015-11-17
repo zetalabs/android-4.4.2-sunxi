@@ -1,10 +1,11 @@
 #ifndef ANDROID_HARDWARE_TVDECODERCLIENT_H
 #define ANDROID_HARDWARE_TVDECODERCLIENT_H
 
-#include <gui/SurfaceTextureClient.h>
+//#include <gui/SurfaceTextureClient.h>
+#include <gui/Surface.h>
 #include <gui/ISurfaceComposer.h>
 #include <gui/SurfaceComposerClient.h>
-#include <gui/ISurface.h>
+//#include <gui/ISurface.h>
 #include <ui/FramebufferNativeWindow.h>
 #include <ui/GraphicBuffer.h>
 #include <binder/MemoryHeapBase.h>
@@ -40,7 +41,7 @@ public:
 	virtual int32_t             stopDecoder();
 	virtual int32_t             setColor(int luma,int contrast,int saturation,int hue);
 	virtual int32_t             setSize(int x,int y,int w,int h);
-	virtual int32_t             setPreviewDisplay(const sp<Surface>& surface);
+	virtual int32_t             setPreviewDisplay(const sp<IGraphicBufferProducer>& bufferProducer);
 private:
 	sp<ITVDecoderService>       mTVDecoderService;
 };

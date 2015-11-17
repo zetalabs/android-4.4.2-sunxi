@@ -613,55 +613,55 @@ static void select_output_device(struct sunxi_audio_device *adev)
     earpiece_on = adev->devices & AUDIO_DEVICE_OUT_EARPIECE;
     bt_on = adev->devices & AUDIO_DEVICE_OUT_ALL_SCO;
 
-	ALOGV("select_output_device, devices: %x, mode: %x", adev->devices, adev->mode);
+    ALOGV("select_output_device, devices: %x, mode: %x", adev->devices, adev->mode);
 
-	int pa_should_on = speaker_on;
+    int pa_should_on = speaker_on;
 
-	char prop_value[16];
-	ret = property_get("audio.without.earpiece", prop_value, "");
-	if (ret > 0)
-	{
-		ALOGD("get property audio.without.earpiece: %s", prop_value);
-		if (strcmp(prop_value, "true") == 0)
-		{
-			pa_should_on |= earpiece_on;
-		}
-	}
+    char prop_value[PROPERTY_VALUE_MAX];
+    ret = property_get("audio.without.earpiece", prop_value, "");
+    if (ret > 0)
+    {
+        ALOGD("get property audio.without.earpiece: %s", prop_value);
+        if (strcmp(prop_value, "true") == 0)
+        {
+            pa_should_on |= earpiece_on;
+        }
+    }
 
     // mute/unmute speaker
-	if (adev->mode == AUDIO_MODE_IN_CALL) 
-	{		
-		if(pa_should_on)
-		{
-			//mixer_ctl_set_value(adev->mixer_ctls.audio_earpiece_out, 0, 0);
-			//mixer_ctl_set_value(adev->mixer_ctls.audio_headphone_out, 0, 0);
-			mixer_ctl_set_value(adev->mixer_ctls.audio_speaker_out, 0, 1);
+    if (adev->mode == AUDIO_MODE_IN_CALL) 
+    {		
+        if (pa_should_on)
+        {
+            //mixer_ctl_set_value(adev->mixer_ctls.audio_earpiece_out, 0, 0);
+            //mixer_ctl_set_value(adev->mixer_ctls.audio_headphone_out, 0, 0);
+            mixer_ctl_set_value(adev->mixer_ctls.audio_speaker_out, 0, 1);
             ALOGV("****LINE:%d,FUNC:%s",__LINE__,__FUNCTION__);
-		}
-		else
-		{
-			if(earpiece_on)
-			{
+        }
+        else
+        {
+            if (earpiece_on)
+            {
                 //mixer_ctl_set_value(adev->mixer_ctls.audio_earpiece_out, 0, 1);
                 //mixer_ctl_set_value(adev->mixer_ctls.audio_headphone_out, 0, 0);
-				mixer_ctl_set_value(adev->mixer_ctls.audio_speaker_out, 0, 0);
+                mixer_ctl_set_value(adev->mixer_ctls.audio_speaker_out, 0, 0);
                 ALOGV("****LINE:%d,FUNC:%s",__LINE__,__FUNCTION__);
-			}
-			else
-			{
-				//mixer_ctl_set_value(adev->mixer_ctls.audio_earpiece_out, 0, 0);
-				//mixer_ctl_set_value(adev->mixer_ctls.audio_headphone_out, 0, 1)
-				mixer_ctl_set_value(adev->mixer_ctls.audio_speaker_out, 0, 0);
-				ALOGV("****LINE:%d,FUNC:%s",__LINE__,__FUNCTION__);
-			}
-		}
-		set_incall_device(adev);
-	}
-	else
-	{
-		//mixer_ctl_set_value(adev->mixer_ctls.audio_spk_switch, 0, (pa_should_on ? 1 : 0));
-		if (pa_should_on)
-		{
+            }
+            else
+            {
+                //mixer_ctl_set_value(adev->mixer_ctls.audio_earpiece_out, 0, 0);
+                //mixer_ctl_set_value(adev->mixer_ctls.audio_headphone_out, 0, 1)
+                mixer_ctl_set_value(adev->mixer_ctls.audio_speaker_out, 0, 0);
+                ALOGV("****LINE:%d,FUNC:%s",__LINE__,__FUNCTION__);
+            }
+        }
+        set_incall_device(adev);
+    }
+    else
+    {
+        //mixer_ctl_set_value(adev->mixer_ctls.audio_spk_switch, 0, (pa_should_on ? 1 : 0));
+        if (pa_should_on)
+        {
             mixer_ctl_set_value(adev->mixer_ctls.audio_speaker_out, 0, 1);
             ALOGV("****LINE:%d,FUNC:%s",__LINE__,__FUNCTION__);
         }
@@ -670,7 +670,7 @@ static void select_output_device(struct sunxi_audio_device *adev)
             mixer_ctl_set_value(adev->mixer_ctls.audio_speaker_out, 0, 0);
             ALOGV("****LINE:%d,FUNC:%s",__LINE__,__FUNCTION__);
         }
-	}
+    }
 }
 
 static void select_input_device(struct sunxi_audio_device *adev)

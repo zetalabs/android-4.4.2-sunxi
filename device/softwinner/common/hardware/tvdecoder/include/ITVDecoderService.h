@@ -46,7 +46,7 @@ public:
 	virtual status_t stopDecoder() = 0;
 	virtual status_t setColor(int luma,int contrast,int saturation,int hue) = 0;
 	virtual status_t setSize(int x,int y,int w,int h) = 0;
-	virtual status_t setPreviewDisplay(const sp<Surface>& surface) = 0;
+	virtual status_t setPreviewDisplay(const sp<IGraphicBufferProducer>& bufferProducer) = 0;
 };
 
 // ----------------------------------------------------------------------------

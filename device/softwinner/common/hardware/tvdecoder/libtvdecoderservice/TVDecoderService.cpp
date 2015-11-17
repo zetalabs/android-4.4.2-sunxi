@@ -3,7 +3,8 @@
 
 #include <jni.h>
 #include <utils/Log.h>
-#include <gui/SurfaceTextureClient.h>
+//#include <gui/SurfaceTextureClient.h>
+#include <gui/Surface.h>
 #include <binder/IPCThreadState.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -366,11 +367,27 @@ status_t TVDecoderService::setSize(int x,int y,int w,int h)
     return OK;
 }
 
-status_t TVDecoderService::setPreviewDisplay(const sp<Surface>& surface)
+status_t TVDecoderService::setPreviewDisplay(const sp<IGraphicBufferProducer>& bufferProducer)
 {
     int ret = OK;
+#if 0
     sp<IBinder> binder(surface != 0 ? surface->asBinder() : 0);
     sp<ANativeWindow> window(surface);
+#else
+    sp<IBinder> binder;
+    sp<ANativeWindow> window;
+
+    ALOGD("setPreviewTarget(%p) (pid %d)", bufferProducer.get(),
+        getCallingPid());
+
+    if (bufferProducer != 0) {
+        binder = bufferProducer->asBinder();
+        // Using controlledByApp flag to ensure that the buffer queue remains in
+        // async mode for the old camera API, where many applications depend
+        // on that behavior.
+        window = new Surface(bufferProducer, /*controlledByApp*/ true);
+    }
+#endif
     mPreviewWindow = window;
 #if TVD_NATIVE
     mPreviewWindow = getNativeWindow();

@@ -18,43 +18,42 @@ include $(CLEAR_VARS)
 LOCAL_PRELINK_MODULE := false
 LOCAL_MODULE_PATH := $(TARGET_OUT_SHARED_LIBRARIES)/hw
 LOCAL_MODULE := sensors.$(TARGET_BOARD_PLATFORM)
-LOCAL_MODULE_TAGS := eng optional
+LOCAL_MODULE_TAGS := optional
 
 ifeq ($(SW_BOARD_USES_MAGSENSOR_TYPE), fxos8700 )
 LOCAL_CPPFLAGS += -DMAG_SENSOR_FXOS8700
-LOCAL_SRC_FILES := 						\
-				sensors.cpp 			\
-				sensorDetect.cpp                \
-				insmodDevice.cpp                \
-				SensorBase.cpp			\
-				AccelSensor.cpp			\
-				MagSensor.cpp                   \
-				GyroSensor.cpp                  \
-				LightSensor.cpp                 \
-				ProximitySensor.cpp             \
-				TempSensor.cpp                  \
-				PressSensor.cpp			\
-                                InputEventReader.cpp            
-    
+LOCAL_SRC_FILES := 								\
+				sensors.cpp 					\
+				sensorDetect.cpp				\
+				insmodDevice.cpp				\
+				SensorBase.cpp					\
+				AccelSensor.cpp					\
+				MagSensor.cpp					\
+				GyroSensor.cpp					\
+				LightSensor.cpp					\
+				ProximitySensor.cpp				\
+				TempSensor.cpp					\
+				PressSensor.cpp					\
+				InputEventReader.cpp
+
 else
-LOCAL_SRC_FILES := 						\
-				sensors.cpp 			\
-				sensorDetect.cpp                \
-				insmodDevice.cpp                \
-				SensorBase.cpp			\
-				AccelSensor.cpp			\
-				MagnetoSensor.cpp               \
-				GyroSensor.cpp                  \
-				LightSensor.cpp                 \
-                                ProximitySensor.cpp             \
-                                TempSensor.cpp                  \
-				PressSensor.cpp			\
-                                InputEventReader.cpp 
-   
-endif      
+LOCAL_SRC_FILES := 								\
+				sensors.cpp 					\
+				sensorDetect.cpp				\
+				insmodDevice.cpp				\
+				SensorBase.cpp					\
+				AccelSensor.cpp					\
+				LightSensor.cpp					\
+				ProximitySensor.cpp				\
+				TempSensor.cpp					\
+				PressSensor.cpp					\
+				InputEventReader.cpp
+
+endif
 
 LOCAL_SHARED_LIBRARIES := liblog libcutils libdl
 
-LOCAL_LDFLAGS = $(LOCAL_PATH)/LibFusion_ARM_cpp.a
+#LOCAL_LDFLAGS = $(LOCAL_PATH)/LibFusion_ARM_cpp.a
 
 include $(BUILD_SHARED_LIBRARY)
+

@@ -19,5 +19,5 @@ public class TVDecoder {
 	public native int stopDecoder();
 	public native int setColor(int luma,int contrast,int saturation,int hue);
 	public native int setSize(int x,int y,int w,int h);
-	public native int setPreviewDisplay(Surface surface);
+	public native int setPreviewDisplay(IGraphicBufferProducer bufferProducer);
 }

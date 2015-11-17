@@ -72,11 +72,12 @@ public:
 		remote()->transact(BnTVDecoderService::SET_SIZE, data, &reply);
 		return reply.readInt32();
 	}
-	virtual status_t setPreviewDisplay(const sp<Surface>& surface)
+	virtual status_t setPreviewDisplay(const sp<IGraphicBufferProducer>& bufferProducer)
 	{
 		Parcel data, reply;
 		data.writeInterfaceToken(ITVDecoderService::getInterfaceDescriptor());
-		Surface::writeToParcel(surface, &data);
+		sp<IBinder> b(bufferProducer->asBinder());
+		data.writeStrongBinder(b);
 		remote()->transact(SET_PREVIEW_DISPLAY, data, &reply);
 		return reply.readInt32();
 	}
@@ -135,8 +136,14 @@ status_t BnTVDecoderService::onTransact(uint32_t code, const Parcel& data, Parce
 			}break;
 		case SET_PREVIEW_DISPLAY: {
 			CHECK_INTERFACE(ITVDecoderService, data, reply);
+#if 0
 			sp<Surface> surface = Surface::readFromParcel(data);
 			reply->writeInt32(setPreviewDisplay(surface));
+#else
+			sp<IGraphicBufferProducer> st =
+				interface_cast<IGraphicBufferProducer>(data.readStrongBinder());
+			reply->writeInt32(setPreviewDisplay(st));
+#endif
 			return NO_ERROR;
 			}break;
 		default:

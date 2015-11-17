@@ -23,8 +23,6 @@
 *
 *******************************************************************************/
 
-
-
 #ifndef __MEMSALGLIB_ECOMPASS_H
 #define __MEMSALGLIB_ECOMPASS_H
 
@@ -90,72 +88,72 @@ unsigned char MEMSAlgLib_eCompass_Magnet_Interfere_Now(void);
 /*
 //simple example
 {
-  MEMSAlgLib_eCompass_Init(1024,1055);
-  while(1)
-  {
-    //25ms as interval before calibration finished.
-    __GetACC();//platform  API
-    __GetMAG();//platform  API
-    __GetSystemTimeMS();//platform  API
-    __PutIntoStucture(ECOM_ValueTypeDef v);//platform  API
-    //caculate Azimuth
-    MEMSAlgLib_eCompass_Update(ECOM_ValueTypeDef* v);
-    if(MEMSAlgLib_eCompass_IsCalibrated())
-    {
-      MEMSAlgLib_eCompass_Get_Azimuth();
-      __Show_Azimuth_Angle_On_LCD();//platform  API
-    }
-    pitchAngle = MEMSAlgLib_eCompass_Get_Pitch();
-    rollAngle = MEMSAlgLib_eCompass_Get_Roll();
-    //delay
-    __Delay(50) //delay 50ms
-  }
+MEMSAlgLib_eCompass_Init(1024,1055);
+while(1)
+{
+//25ms as interval before calibration finished.
+__GetACC();//platform  API
+__GetMAG();//platform  API
+__GetSystemTimeMS();//platform  API
+__PutIntoStucture(ECOM_ValueTypeDef v);//platform  API
+//caculate Azimuth
+MEMSAlgLib_eCompass_Update(ECOM_ValueTypeDef* v);
+if(MEMSAlgLib_eCompass_IsCalibrated())
+{
+MEMSAlgLib_eCompass_Get_Azimuth();
+__Show_Azimuth_Angle_On_LCD();//platform  API
+}
+pitchAngle = MEMSAlgLib_eCompass_Get_Pitch();
+rollAngle = MEMSAlgLib_eCompass_Get_Roll();
+//delay
+__Delay(50) //delay 50ms
+}
 }
 
 //complex way
 {
-  MEMSAlgLib_eCompass_Init(1024,1055);
+MEMSAlgLib_eCompass_Init(1024,1055);
 
-  //if find the last record of calibration data
-  if(__FindRecord__()) //platform related API
-    MEMSAlgLib_eCompass_SetCalibration(signed short mx,signed short my,signed short mz);
+//if find the last record of calibration data
+if(__FindRecord__()) //platform related API
+MEMSAlgLib_eCompass_SetCalibration(signed short mx,signed short my,signed short mz);
 
-  //if need to open calibraiton evolution function , default disabled, need to take 1/100 workload average
-  if(__NeedCalibration_Evolution())
-    MEMSAlgLib_eCompass_enable_evo();
-  else
-    MEMSAlgLib_eCompass_disable_evo();
+//if need to open calibraiton evolution function , default disabled, need to take 1/100 workload average
+if(__NeedCalibration_Evolution())
+MEMSAlgLib_eCompass_enable_evo();
+else
+MEMSAlgLib_eCompass_disable_evo();
 
-  //endless while
-  while(1)
-  {
-    //25ms as interval before calibration finished.
-    __GetACC();//platform related API
-    __GetMAG();//platform related API
-    __GetSystemTimeMS();//platform related API
-    __PutIntoStucture(ECOM_ValueTypeDef v);//platform related API
-    //get old calibration data
-    signed short MAGOFFX1,MAGOFFY1,MAGOFFZ1;
-    MEMSAlgLib_eCompass_GetCalibration(&MAGOFFX1,&MAGOFFY1,&MAGOFFZ1);
-    //Azimuth
-    MEMSAlgLib_eCompass_Update(ECOM_ValueTypeDef* v);
-    if(MEMSAlgLib_eCompass_IsCalibrated())
-    {
-      MEMSAlgLib_eCompass_Get_Azimuth();
-      __Show_Azimuth_Angle_On_LCD();//platform related API
-      if(!__FindRecord__())//platform related API
-      {
-        signed short MAGOFFX2,MAGOFFY2,MAGOFFZ2;
-        MEMSAlgLib_eCompass_GetCalibration(&MAGOFFX2,&MAGOFFY2,&MAGOFFZ2);
-        if( (MAGOFFX1!=MAGOFFX2) || (MAGOFFY1!=MAGOFFY2) || (MAGOFFZ1!=MAGOFFZ2) )
-        {
-          __WriteFileRecord(MAGOFFX2, MAGOFFY2, MAGOFFZ2);//platform related API
-        }
-      }
-    }
-    pitchAngle = MEMSAlgLib_eCompass_Get_Pitch();
-    rollAngle = MEMSAlgLib_eCompass_Get_Roll();
-    __Delay(50) //delay 50ms
-  }
+//endless while
+while(1)
+{
+//25ms as interval before calibration finished.
+__GetACC();//platform related API
+__GetMAG();//platform related API
+__GetSystemTimeMS();//platform related API
+__PutIntoStucture(ECOM_ValueTypeDef v);//platform related API
+//get old calibration data
+signed short MAGOFFX1,MAGOFFY1,MAGOFFZ1;
+MEMSAlgLib_eCompass_GetCalibration(&MAGOFFX1,&MAGOFFY1,&MAGOFFZ1);
+//Azimuth
+MEMSAlgLib_eCompass_Update(ECOM_ValueTypeDef* v);
+if(MEMSAlgLib_eCompass_IsCalibrated())
+{
+MEMSAlgLib_eCompass_Get_Azimuth();
+__Show_Azimuth_Angle_On_LCD();//platform related API
+if(!__FindRecord__())//platform related API
+{
+signed short MAGOFFX2,MAGOFFY2,MAGOFFZ2;
+MEMSAlgLib_eCompass_GetCalibration(&MAGOFFX2,&MAGOFFY2,&MAGOFFZ2);
+if( (MAGOFFX1!=MAGOFFX2) || (MAGOFFY1!=MAGOFFY2) || (MAGOFFZ1!=MAGOFFZ2) )
+{
+__WriteFileRecord(MAGOFFX2, MAGOFFY2, MAGOFFZ2);//platform related API
+}
+}
+}
+pitchAngle = MEMSAlgLib_eCompass_Get_Pitch();
+rollAngle = MEMSAlgLib_eCompass_Get_Roll();
+__Delay(50) //delay 50ms
+}
 }
 */

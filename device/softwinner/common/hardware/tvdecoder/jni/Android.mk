@@ -6,7 +6,18 @@ LOCAL_MODULE_TAGS := eng
 
 LOCAL_SRC_FILES := softwinner_tv_TVDecoder.cpp
 
-LOCAL_SHARED_LIBRARIES:= libutils libbinder libui liblog libcutils libnativehelper libtvdecoder_client
+LOCAL_SHARED_LIBRARIES := \
+    libandroid_runtime \
+    libnativehelper \
+    libutils \
+    libbinder \
+    libui \
+    liblog \
+    libcutils \
+    libgui \
+    libstagefright \
+    libstagefright_foundation \
+    libtvdecoder_client
 
 LOCAL_PRELINK_MODULE := false
 

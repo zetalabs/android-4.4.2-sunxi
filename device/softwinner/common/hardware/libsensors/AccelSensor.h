@@ -49,34 +49,34 @@ public:
     virtual int getEnable(int32_t handle);
     virtual int readEvents(sensors_event_t* data, int count);
     void processEvent(int code, int value);
-    void getAccData(sensors_event_t* data) { 
-                *data = mAccData; 
-        }
+    void getAccData(sensors_event_t* data) {
+        *data = mAccData;
+    }
 
 private:
-	int is_sensor_enabled();
-	int enable_sensor();
-	int disable_sensor();
-	int set_delay(int64_t ns);
-	int update_delay();
-	int readDisable();
-	int writeEnable(int isEnable);
-	int writeDelay(int64_t ns);
-	int mUser;
-	int mEnabled;
-	int mPendingMask;
-	float convert;
-        float direct_x;
-        float direct_y;
-        float direct_z;
-        int direct_xy;
-	InputEventCircularReader mInputReader;
-	sensors_event_t mPendingEvent;
-	sensors_event_t mAccData;
-	int64_t mDelay;
-	char* get_cfg_value(char *buf);
-        int gsensor_cfg();
-        
+    int is_sensor_enabled();
+    int enable_sensor();
+    int disable_sensor();
+    int set_delay(int64_t ns);
+    int update_delay();
+    int readDisable();
+    int writeEnable(int isEnable);
+    int writeDelay(int64_t ns);
+    int mUser;
+    int mEnabled;
+    int mPendingMask;
+    float convert;
+    float direct_x;
+    float direct_y;
+    float direct_z;
+    int direct_xy;
+    InputEventCircularReader mInputReader;
+    sensors_event_t mPendingEvent;
+    sensors_event_t mAccData;
+    int64_t mDelay;
+    char* get_cfg_value(char *buf);
+    int gsensor_cfg();
+
 };
 
 /*****************************************************************************/

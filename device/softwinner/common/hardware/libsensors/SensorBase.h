@@ -30,35 +30,34 @@
 /*****************************************************************************/
 class SensorBase {
 protected:
-        const char* dev_name;
-        const char* data_name;
-        char        input_name[PATH_MAX];
-        int         dev_fd;
-        int         data_fd;
+    const char* dev_name;
+    const char* data_name;
+    char        input_name[PATH_MAX];
+    int         dev_fd;
+    int         data_fd;
 
-        int openInput(const char* inputName);
-        int set_sysfs_input_attr(char *class_path,const char *attr, char *value, int len);
-        static int64_t getTimestamp();
+    int openInput(const char* inputName);
+    int set_sysfs_input_attr(char *class_path,const char *attr, char *value, int len);
+    static int64_t getTimestamp();
 
+    static int64_t timevalToNano(timeval const& t) {
+        return t.tv_sec*1000000000LL + t.tv_usec*1000;
+    }
 
-        static int64_t timevalToNano(timeval const& t) {
-                return t.tv_sec*1000000000LL + t.tv_usec*1000;
-        }
+    int open_device();
+    int close_device();
 
-        int open_device();
-        int close_device();
-    
 public:
-        SensorBase(const char* dev_name,const char* data_name);
-	
-        virtual ~SensorBase();
-	virtual bool hasPendingEvents() const;
-        virtual int getFd() const;
-	virtual int setDelay(int32_t handle, int64_t ns);
-        virtual int setEnable(int32_t handle, int enabled);
-        virtual int getEnable(int32_t handle);
-        virtual int readEvents(sensors_event_t* data, int count);
-        virtual void processEvent(int code, int value) = 0;
+    SensorBase(const char* dev_name,const char* data_name);
+
+    virtual ~SensorBase();
+    virtual bool hasPendingEvents() const;
+    virtual int getFd() const;
+    virtual int setDelay(int32_t handle, int64_t ns);
+    virtual int setEnable(int32_t handle, int enabled);
+    virtual int getEnable(int32_t handle);
+    virtual int readEvents(sensors_event_t* data, int count);
+    virtual void processEvent(int code, int value) = 0;
 };
 
 /*****************************************************************************/

@@ -117,12 +117,10 @@ __BEGIN_DECLS
 #define NUMOFACCDATA                    8
 #define LSG_LIS35DE                     (15.0f)
 #define LSG_MMA7660                     (21.0f)
-#define LSG_STK8312                     (21.33f)
 #define LSG_MXC622X                     (64.0f)
 #define LSG_LIS3DE_ACC                  (65.0f)
 #define LSG_BMA250                      (256.0f)
 #define LSG_DMARD06                     (256.0f)
-#define LSG_STK8313                     (256.0f)
 #define LSG_DMARD10                     (1024.0f)
 #define LSG_MMA8452                     (1024.0f)
 #define LSG_KXTIK                       (1024.0f)
@@ -136,27 +134,27 @@ __BEGIN_DECLS
 /*****************************************************************************/
 
 struct sensor_info{
-        char sensorName[64];
-        char classPath[128];
-        float priData;
+    char sensorName[64];
+    char classPath[128];
+    float priData;
 };
 struct sensors_data{
-        char name[64];
-        float lsg;
+    char name[64];
+    float lsg;
 };
 struct sensor_extend_t{
-        struct sensors_data sensors;
-        struct sensor_t sList;
+    struct sensors_data sensors;
+    struct sensor_t sList;
 };
 
 struct status{
-        bool isUsed;
-        bool isFound;
+    bool isUsed;
+    bool isFound;
 };
 
 struct o_device{
-        int isFind;
-        char name[32];
+    int isFind;
+    char name[32];
 };
 /*****************************************************************************/
 

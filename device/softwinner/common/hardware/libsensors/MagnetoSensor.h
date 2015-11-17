@@ -58,9 +58,8 @@ private:
     AccelSensor*  mAccSensor;
     int mPendingMask;
 
-
 public:
-            MagnetoSensor(AccelSensor* as);
+    MagnetoSensor(AccelSensor* as);
     virtual ~MagnetoSensor();
     virtual int readEvents(sensors_event_t* data, int count);
     virtual int setDelay(int32_t handle, int64_t ns);

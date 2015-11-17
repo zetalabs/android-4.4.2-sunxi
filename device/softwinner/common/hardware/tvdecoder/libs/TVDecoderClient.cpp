@@ -56,9 +56,13 @@ int32_t TVDecoderClient::setSize(int x,int y,int w,int h)
 	return mTVDecoderService->setSize(x,y,w,h);
 }
 
-int32_t TVDecoderClient::setPreviewDisplay(const sp<Surface>& surface)
+int32_t TVDecoderClient::setPreviewDisplay(const sp<IGraphicBufferProducer>& bufferProducer)
 {
-	return mTVDecoderService->setPreviewDisplay(surface);
+	ALOGV("setPreviewDisplay(%p)", bufferProducer.get());
+	sp <ITVDecoderService> tvd = mTVDecoderService;
+	if (tvd == 0) return NO_INIT;
+	ALOGD_IF(bufferProducer == 0, "app passed NULL surface");
+	return tvd->setPreviewDisplay(bufferProducer);
 }
 
 }; // namespace android

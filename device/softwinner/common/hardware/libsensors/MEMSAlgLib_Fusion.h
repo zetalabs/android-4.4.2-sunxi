@@ -1,7 +1,7 @@
 /******************** (C) COPYRIGHT 2010 STMicroelectronics ********************
 *
 * File Name		: MEMSAlgLib_Fusion.h
-* Authors		: ST Motion Sensors & iNEMO 
+* Authors		: ST Motion Sensors & iNEMO
 *			    : Travis Tu (travis.tu@st.com)
 * Version		: V 1.43
 * Date			: 2011/11/08
@@ -24,69 +24,68 @@
  * limitations under the License.
  */
 
-
 #ifndef __MEMSALGLIB_FUSION_H
 #define __MEMSALGLIB_FUSION_H
 typedef struct
 {
-  long ax;  
-  long ay;  
-  long az;  
-  long mx;  
-  long my;  
-  long mz;  
-  long gx;  
-  long gy;
-  long gz;
-  long Azimuth;
-  long pitch;
-  long roll;
-  long time; //system time in ms
-}NineAxisTypeDef; 
+    long ax;
+    long ay;
+    long az;
+    long mx;
+    long my;
+    long mz;
+    long gx;
+    long gy;
+    long gz;
+    long Azimuth;
+    long pitch;
+    long roll;
+    long time; //system time in ms
+}NineAxisTypeDef;
 
 typedef struct
 {
-  float a;  
-  float b;
-  float c;
-  float d;
-}QuaternionTypeDef; 
+    float a;
+    float b;
+    float c;
+    float d;
+}QuaternionTypeDef;
 
 typedef struct
 {
-  float x;  
-  float y;
-  float z;
-}GravityTypeDef; 
+    float x;
+    float y;
+    float z;
+}GravityTypeDef;
 
 typedef struct
 {
-  float x;  
-  float y;
-  float z;
-}LinearAccTypeDef; 
+    float x;
+    float y;
+    float z;
+}LinearAccTypeDef;
 
 typedef struct
 {
-  float x;  
-  float y;
-  float z;
-}AccTypeDef; 
+    float x;
+    float y;
+    float z;
+}AccTypeDef;
 
 typedef struct
 {
-	QuaternionTypeDef q;
-	GravityTypeDef	  g;
-	LinearAccTypeDef  l;
+    QuaternionTypeDef q;
+    GravityTypeDef	  g;
+    LinearAccTypeDef  l;
 }FusionTypeDef;
 
 
 typedef struct
 {
-  float pitch;  
-  float roll;
-  float yaw;
-}PRYTypeDef; 
+    float pitch;
+    float roll;
+    float yaw;
+}PRYTypeDef;
 
 
 //void MEMSAlgLib_Fusion_Init(long oneGravityValue, long oneGaussValue, float oneDSPValue);
@@ -96,26 +95,25 @@ typedef struct
 //mag in mGauss
 FusionTypeDef MEMSAlgLib_Fusion_Update(NineAxisTypeDef v);
 
-//to get the version of this algorithm 
+//to get the version of this algorithm
 float MEMSAlgLib_Fusion_Get_Version(void);
 
-//to get the filted ACC value after LPF. 
+//to get the filted ACC value after LPF.
 AccTypeDef MEMSAlgLib_Fusion_Get_ACC(void);
 
-//as an Air Mouse Mode in arc 
+//as an Air Mouse Mode in arc
 //Picth: Vertical move, up Positive
 //Roll: Scroll move, anti-clockwise Positive
-//Yaw: Horizontal move, right Positive 
+//Yaw: Horizontal move, right Positive
 PRYTypeDef GetAirMouseMove(void);
 
-//to get gyro 0-rate offset 
+//to get gyro 0-rate offset
 void MEMSAlgLib_Fusion_Get_GyroOffset(float *x, float *y, float *z); //unit: same LSB as input structure
 
 //to get the record data
 int  MEMSAlgLib_Fusion_GetStoreValuesLength(void);
 void MEMSAlgLib_Fusion_GetStoreValues(unsigned char* buf);
 void MEMSAlgLib_Fusion_SetStoreValues(unsigned char* buf);
-
 
 
 //property API
@@ -128,9 +126,8 @@ char MEMSAlgLib_Fusion_SelfLenrning_DoneON_XYZ(int idXYZ); //whether self learni
 
 //Supplier property API
 void MEMSAlgLib_Config(int id, float value); //only for professional.
-long MEMSAlgLib_Get(int id); //only for professional. 
+long MEMSAlgLib_Get(int id); //only for professional.
 QuaternionTypeDef MEMSAlgLib_GetQ3(void);
 QuaternionTypeDef MEMSAlgLib_GetQ6(void);
 #endif
-
 

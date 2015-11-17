@@ -9,8 +9,8 @@ LOCAL_MODULE_TAGS := eng
 LOCAL_SHARED_LIBRARIES := \
 	libutils \
 	libbinder \
+	liblog \
 	libtvdecoderservice
-
 
 LOCAL_MODULE:= tvdecoderserver
 
