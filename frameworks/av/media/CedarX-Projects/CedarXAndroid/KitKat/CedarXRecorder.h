@@ -39,7 +39,13 @@ public:
     status_t setMediaSource(const sp<MediaSource>& mediasource, int type);
     status_t setParamVideoCameraId(int32_t cameraId);
     status_t setListener(const sp<IMediaRecorderClient>& listener);
+
+#if (CEDARX_ANDROID_VERSION <= 9)
     status_t setPreviewSurface(const sp<Surface>& surface);
+#else
+    status_t setPreviewSurface(const sp<IGraphicBufferProducer> &surface);
+#endif
+
     status_t queueBuffer(int index, int addr_y, int addr_c, int64_t timestamp);
     status_t prepare();
     status_t start();
@@ -166,7 +172,13 @@ private:
 		
     sp<Camera> mCamera;
 	sp<ICameraRecordingProxy> mCameraProxy;
+
+#if (CEDARX_ANDROID_VERSION <= 9)
     sp<Surface> mPreviewSurface;
+#else
+    sp<IGraphicBufferProducer> mPreviewSurface;
+#endif
+
     sp<IMediaRecorderClient> mListener;
 
     output_format mOutputFormat;
@@ -219,8 +231,9 @@ private:
 	sp<MemoryBase>      mFrameBuffer;
 
 	bool				mStarted;
+	bool                mPrepared;   //fuqiang
 	uint 				mRecModeFlag;
-	AudioRecord 		*mRecord;
+	sp<AudioRecord>		mRecord;
 	CDXRecorder 		*mCdxRecorder;
 
 	int64_t				mLatencyStartUs;
@@ -231,8 +244,10 @@ private:
 	sp<DeathNotifier>   mDeathNotifier;
 	sp<IMemory>         mBsFrameMemory;
 	char			*mCallingProcessName;   //fuqiang
+	int                 mCallingUid;            //fuqiang
 	int                 mAudioEncodeType;
 	bool				mOutputVideosizeflag;
+	bool                mUseGrallocSource;
 	
     CedarXRecorder(const CedarXRecorder &);
     CedarXRecorder &operator=(const CedarXRecorder &);

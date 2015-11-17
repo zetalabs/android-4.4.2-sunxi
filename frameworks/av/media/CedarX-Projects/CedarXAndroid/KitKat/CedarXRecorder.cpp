@@ -1,7 +1,4 @@
 #include <CDX_LogNDebug.h>
-
-#define LOG_NDEBUG 0
-
 #define LOG_TAG "CedarXRecorder"
 #include <CDX_Debug.h>
 
@@ -24,8 +21,8 @@
 #else
 #include <media/stagefright/foundation/ADebug.h>
 #include <MetadataBufferType.h>
-#include <gui/ISurfaceTexture.h>
-#include <gui/SurfaceTextureClient.h>
+//#include <gui/ISurfaceTexture.h>
+//#include <gui/SurfaceTextureClient.h>
 #include <gui/Surface.h>
 #endif
 
@@ -41,6 +38,12 @@
 #include <CDX_Recorder.h>
 #include <include_writer/recorde_writer.h>
 #include <videodev.h>
+#include <ui/Rect.h>
+#include <ui/GraphicBufferMapper.h>
+
+#include <linux/ion.h>
+#include <ion/ion.h>
+#include "hardware/hal_public.h"
 
 #define F_LOG 	LOGV("%s, line: %d", __FUNCTION__, __LINE__);
 
@@ -55,6 +58,7 @@ extern "C" int CedarXRecorderCallbackWrapper(void *cookie, int event, void *info
 namespace android {
 
 #define GET_CALLING_PID	(IPCThreadState::self()->getCallingPid())
+#define GET_CALLING_UID	(IPCThreadState::self()->getCallingUid())
 void getCallingProcessName(char *name)
 {
 	char proc_node[128];
@@ -158,6 +162,8 @@ CedarXRecorder::CedarXRecorder()
 	, mCdxRecorder(NULL)
 	, mLatencyStartUs(0)
 	, mCallingProcessName(NULL)
+	, mCallingUid(0)
+	, mPrepared(false)
 {
 
     LOGV("Constructor");
@@ -168,13 +174,13 @@ CedarXRecorder::CedarXRecorder()
 
 	reset();
 
-	mFrameHeap = new MemoryHeapBase(sizeof(int));
+	mFrameHeap = new MemoryHeapBase(sizeof(int)*2); // modify this for buffer_handle_t
 	if (mFrameHeap->getHeapID() < 0)
 	{
 		LOGE("ERR(%s): Record heap creation fail", __func__);
         mFrameHeap.clear();
 	}
-	mFrameBuffer = new MemoryBase(mFrameHeap, 0, sizeof(int));
+	mFrameBuffer = new MemoryBase(mFrameHeap, 0, sizeof(int)*2);
 
 //    pCedarXRecorderAdapter = new CedarXRecorderAdapter(this);
 //    if(NULL == pCedarXRecorderAdapter)
@@ -184,6 +190,7 @@ CedarXRecorder::CedarXRecorder()
 
 	mCallingProcessName = (char *)malloc(sizeof(char) * 128);
 	getCallingProcessName(mCallingProcessName);
+	mCallingUid = GET_CALLING_UID;
 	memset(mCameraHalVersion, 0, sizeof(mCameraHalVersion));
 }
 
@@ -357,7 +364,18 @@ status_t CedarXRecorder::isCameraAvailable(
 {
     if (camera == 0) 
 	{
+		String16 processName(mCallingProcessName);
+
+#if (CEDARX_ANDROID_VERSION <= 9)
+
         mCamera = Camera::connect(cameraId);
+#else
+        mCamera = Camera::connect(cameraId,
+        		processName,
+        		//Camera::USE_CALLING_UID);
+				mCallingUid);
+#endif
+		
         if (mCamera == 0) 
 		{
 			return -EBUSY;
@@ -386,7 +404,13 @@ status_t CedarXRecorder::isCameraAvailable(
     // check earlier by calling mCamera->setParameters().
     if (mPreviewSurface != NULL)
     {
+
+#if (CEDARX_ANDROID_VERSION <= 9)
     	CHECK_EQ((status_t)OK, mCamera->setPreviewDisplay(mPreviewSurface));
+#else
+    	CHECK_EQ((status_t)OK, mCamera->setPreviewTarget(mPreviewSurface));
+#endif
+
     }
 
 #if (CEDARX_ANDROID_VERSION == 6 && CEDARX_ADAPTER_VERSION == 4)
@@ -402,6 +426,8 @@ status_t CedarXRecorder::isCameraAvailable(
 }
 
 
+#if (CEDARX_ANDROID_VERSION <= 9)
+
 status_t CedarXRecorder::setPreviewSurface(const sp<Surface>& surface)
 {
     LOGV("setPreviewSurface: %p", surface.get());
@@ -409,6 +435,18 @@ status_t CedarXRecorder::setPreviewSurface(const sp<Surface>& surface)
 
     return OK;
 }
+
+#else
+
+status_t CedarXRecorder::setPreviewSurface(const sp<IGraphicBufferProducer> &surface) {
+    ALOGV("setPreviewSurface: %p", surface.get());
+    mPreviewSurface = surface;
+
+    return OK;
+}
+
+#endif
+
 
 status_t CedarXRecorder::queueBuffer(int index, int addr_y, int addr_c, int64_t timestamp)
 {
@@ -708,10 +746,10 @@ status_t CedarXRecorder::CreateAudioRecorder()
     }
 #endif
 
-#if ((CEDARX_ANDROID_VERSION == 8) || (CEDARX_ANDROID_VERSION == 9))
+#if ((CEDARX_ANDROID_VERSION == 8) || (CEDARX_ANDROID_VERSION == 9)  || (CEDARX_ANDROID_VERSION == 10))
     int minFrameCount;
 
-    status_t status = AudioRecord::getMinFrameCount(&minFrameCount,
+    status_t status = AudioRecord::getMinFrameCount((size_t *)&minFrameCount,
                                            mSampleRate,
                                            AUDIO_FORMAT_PCM_16_BIT,
                    audio_channel_in_mask_from_count(mAudioChannels));
@@ -806,6 +844,7 @@ static int convertVideoSource(int inputVideoSource)
 status_t CedarXRecorder::prepare() 
 {
 	LOGV("prepare");
+	Mutex::Autolock autoLock(mStateLock);
 	int srcWidth = 0, srcHeight = 0;
 	int ret = OK;
     int muxer_mode;
@@ -819,8 +858,8 @@ status_t CedarXRecorder::prepare()
 			ret = CreateAudioRecorder();
 			if (ret != OK)
 			{
+				releaseCamera();
 				LOGE("CreateAudioRecorder failed");
-                releaseCamera();
 				return ret;
 			}
 		}
@@ -841,8 +880,8 @@ status_t CedarXRecorder::prepare()
 	mCdxRecorder->control((void*)mCdxRecorder, CDX_CMD_PREPARE, 0, 0);
 	if( ret == -1)
 	{
+		releaseCamera();
 		LOGE("CEDARX REPARE ERROR!\n");
-        releaseCamera();
 		return UNKNOWN_ERROR;
 	}
 
@@ -924,8 +963,23 @@ status_t CedarXRecorder::prepare()
 			const char * capture_fmt_str =  newCameraParams.get("capture-format");
 			if(capture_fmt_str != NULL) {
 
-				LOGD("capture_fmt_str: %s", capture_fmt_str);
-				capture_fmt = 1;
+				int fmt = atoi(capture_width_str);
+
+				if(fmt == V4L2_PIX_FMT_MJPEG || fmt == V4L2_PIX_FMT_JPEG)
+				{
+					LOGD("capture_fmt_str,V4L2_PIX_FMT_MJPEG");
+					capture_fmt = 1; // mjpeg source
+				}
+				else if(fmt == V4L2_PIX_FMT_H264)
+				{
+					LOGD("capture_fmt_str, V4L2_PIX_FMT_H264");
+				    capture_fmt = 2; // h264 source
+				}
+				else
+				{
+					LOGD("capture_fmt_str, common");
+					capture_fmt = 0; // common source
+				}
 			}
 		}
 		else
@@ -989,7 +1043,7 @@ status_t CedarXRecorder::prepare()
 	vInfo.qp_max			= 40;
 	vInfo.qp_min            = 10;
 	vInfo.picEncmode		= 0;
-	vInfo.is_mjpeg_source 	= capture_fmt;
+	vInfo.is_compress_source 	= capture_fmt;
 #endif
 
 	if (mVideoWidth == 0
@@ -1045,6 +1099,7 @@ status_t CedarXRecorder::prepare()
 		mCdxRecorder->control((void*)mCdxRecorder, CDX_CMD_SET_TIME_LAPSE, 0, 0);
 	}
 
+	mPrepared = true;
     return OK;
 }
 
@@ -1128,6 +1183,11 @@ status_t CedarXRecorder::stop()
 		if (mStarted == true)
 		{
 			mStarted = false;
+			mPrepared = false;
+		}
+		else if(mStarted == false && mPrepared == true)
+		{
+			mPrepared = false;
 		}
 		else
 		{
@@ -1160,9 +1220,7 @@ status_t CedarXRecorder::stop()
 			&& mRecord != NULL)
 		{
 			mRecord->stop();
-			delete mRecord;
-			mRecord = NULL;
-			
+			mRecord.clear();
 		}	
 	}
 
@@ -1244,6 +1302,7 @@ status_t CedarXRecorder::reset()
 	mLatitudex10000 = -3600000;
     mLongitudex10000 = -3600000;
 	mOutputVideosizeflag = false;
+	mUseGrallocSource = false;
 
     return OK;
 }
@@ -1277,17 +1336,82 @@ void CedarXRecorder::dataCallbackTimestamp(int64_t timestampUs,
 	V4L2BUF_t buf;
 	int ret = -1;
 	int64_t readTimeUs = systemTime() / 1000;
-	
+
+	OMX_U32 type;
+	char *data_ptr;
+
 	if (data == NULL)
 	{
 		LOGE("error IMemory data\n");
 		return;
 	}
-	
-	memcpy((void *)&buf, data->pointer(), sizeof(V4L2BUF_t));
 
-	buf.overlay_info = NULL; //add this for cts test
+	data_ptr = (char *)data->pointer();
+	type = *((OMX_U32*)data_ptr);
+
+	memset(&buf, 0, sizeof(V4L2BUF_t));
+
+	if(type == kMetadataBufferTypeGrallocSource) {
+		OMX_U32 type;
+		buffer_handle_t buffer_handle;
+		unsigned int phyaddress;
+		
+		int res;
+
+		if(mUseGrallocSource == false)
+			mUseGrallocSource = true;
+
+		memcpy(&buffer_handle, data_ptr+4, 4);
+		
+		if(buffer_handle)
+		{
+			IMG_native_handle_t* hnd = (IMG_native_handle_t*)(buffer_handle);
+			int fd = ion_open();
+			struct ion_handle *handle_ion;
+
+			if(fd != -1)
+			{
+				ion_import(fd, hnd->fd[0], &handle_ion);
+				phyaddress= ion_getphyadr(fd, handle_ion);
+				//LOGD("++++++++phyaddress: %x\n", (unsigned int)phyaddress);
+
+				ion_close(fd);
+			}
+			else
+			{
+				LOGE("ion_open fail");
+				return;
+			}
+		}
+		else
+		{
+			LOGE("buf->handle is null");
+			return;
+		}
+
+		if(phyaddress >= 0x40000000)
+			phyaddress -= 0x40000000;
+		
+		buf.addrPhyY = phyaddress;
+		buf.width = mSrcVideoWidth;
+		buf.height = mSrcVideoHeight;
+
+		buf.crop_rect.left = 0;
+		buf.crop_rect.top = 0;
+		buf.crop_rect.width = mSrcVideoWidth; //fix it later
+		buf.crop_rect.height = mSrcVideoHeight; //fix it later
+
+		buf.timeStamp = timestampUs*1000; //fix it later
+		buf.index = (int)buffer_handle;
+
+		LOGV("dataCallbackTimestamp, buffer_handle: %x\n", buffer_handle);
+		GraphicBufferMapper::get().unlock(buffer_handle);
+	}else {
+		memcpy((void *)&buf, data->pointer(), sizeof(V4L2BUF_t));
+		buf.overlay_info = NULL; //add this for cts test
+	}
 	
+
 	// if encoder is stopped or paused ,release this frame
 	if (mStarted == false)
 	{
@@ -1328,7 +1452,7 @@ void CedarXRecorder::dataCallbackTimestamp(int64_t timestampUs,
 
 	buf.addrPhyC = buf.addrPhyY + mSrcVideoWidth*mSrcVideoHeight;
 
-	if(buf.format == V4L2_PIX_FMT_JPEG || buf.format == V4L2_PIX_FMT_MJPEG) {
+	if(buf.format == V4L2_PIX_FMT_JPEG || buf.format == V4L2_PIX_FMT_MJPEG || buf.format == V4L2_PIX_FMT_H264) {
 		buf.addrPhyY = buf.addrVirY;
 		buf.width = buf.bytesused;
 	}
@@ -1363,12 +1487,19 @@ void CedarXRecorder::dataCallbackTimestamp(int64_t timestampUs,
 void CedarXRecorder::CedarXReleaseFrame(int index)
 {
     Mutex::Autolock lock(mLock);
+	
 	if (mVideoSource <= VIDEO_SOURCE_CAMERA)
 	{
 		int * p = (int *)(mFrameBuffer->pointer());
+		if(mUseGrallocSource) {
+			p[0] = kMetadataBufferTypeGrallocSource;
+			p[1] = index; // buffer_handle_t
 
-		*p = index;
-	
+			LOGV("CedarXReleaseFrame, buffer_handle: %x\n", index);
+		}else {
+			*p = index;
+		}
+
 		releaseOneRecordingFrame(mFrameBuffer);
 	}
 	else
