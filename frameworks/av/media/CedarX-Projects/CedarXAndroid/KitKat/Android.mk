@@ -29,7 +29,7 @@ LOCAL_C_INCLUDES:= \
     $(TOP)/frameworks/${AV_BASE_PATH} \
     $(TOP)/frameworks/${AV_BASE_PATH}/include \
     $(TOP)/external/openssl/include \
-    $(TOP)/external/icu4c/common
+    $(TOP)/external/icu4c_48/common
     
 ifeq ($(PLATFORM_VERSION),4.1.1)
     LOCAL_C_INCLUDES += $(TOP)/frameworks/native/include/media/hardware
@@ -40,7 +40,12 @@ endif
 ifeq ($(PLATFORM_VERSION),4.2.2)
 	LOCAL_C_INCLUDES += $(TOP)/frameworks/native/include/media/hardware
 endif
-
+ifeq ($(PLATFORM_VERSION),4.4)
+	LOCAL_C_INCLUDES += $(TOP)/frameworks/native/include/media/hardware
+endif
+ifeq ($(PLATFORM_VERSION),4.4.2)
+	LOCAL_C_INCLUDES += $(TOP)/frameworks/native/include/media/hardware
+endif
 
 LOCAL_SHARED_LIBRARIES := \
         libcedarxosal	  \
@@ -52,7 +57,8 @@ LOCAL_SHARED_LIBRARIES := \
         libgui			  \
         libcamera_client \
         libstagefright_foundation \
-        libicuuc \
+        libicuuc_48 \
+		libion            \
 		libskia 
 
 ifeq ($(PLATFORM_VERSION),2.3.4)
@@ -71,6 +77,12 @@ endif
 #LOCAL_SHARED_LIBRARIES += libsurfaceflinger_client
 #endif
 #ifneq ($(PLATFORM_VERSION),4.2.1)
+#LOCAL_SHARED_LIBRARIES += libsurfaceflinger_client
+#endif
+#ifneq ($(PLATFORM_VERSION),4.4)
+#LOCAL_SHARED_LIBRARIES += libsurfaceflinger_client
+#endif
+#ifneq ($(PLATFORM_VERSION),4.4.2)
 #LOCAL_SHARED_LIBRARIES += libsurfaceflinger_client
 #endif
 
@@ -93,7 +105,10 @@ LOCAL_STATIC_LIBRARIES += \
 	libcedarxdrmsniffer
 
 LOCAL_STATIC_LIBRARIES += \
-	libcedarxstream \
+	libcedarxstream
+
+LOCAL_STATIC_LIBRARIES += \
+	libstagefright_httplive_opt
 
 LOCAL_STATIC_LIBRARIES += \
 	libcedarx_rtsp
@@ -119,6 +134,9 @@ LOCAL_LDFLAGS += \
 
 LOCAL_LDFLAGS += \
 	$(CEDARX_TOP)/../CedarAndroidLib/LIB_$(CEDARX_ANDROID_CODE)_$(CEDARX_CHIP_VERSION)/libcedarxstream.a 
+
+LOCAL_LDFLAGS += \
+	$(CEDARX_TOP)/../CedarAndroidLib/LIB_$(CEDARX_ANDROID_CODE)_$(CEDARX_CHIP_VERSION)/libstagefright_httplive_opt.a
 
 LOCAL_LDFLAGS += \
 	$(CEDARX_TOP)/../CedarAndroidLib/LIB_$(CEDARX_ANDROID_CODE)_$(CEDARX_CHIP_VERSION)/libcedarx_rtsp.a
