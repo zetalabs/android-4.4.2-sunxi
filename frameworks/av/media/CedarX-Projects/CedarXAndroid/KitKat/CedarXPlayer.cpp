@@ -54,6 +54,8 @@
 #include <surfaceflinger/ISurfaceComposer.h>
 #endif
 
+#include <media/IAudioFlinger.h>
+
 //#include <gui/ISurfaceTexture.h>
 //#include <gui/SurfaceTextureClient.h>
 #include <gui/IGraphicBufferProducer.h>

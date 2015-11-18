@@ -71,8 +71,8 @@ public:
 
 private:
     sp<MediaSource> mSource;
-    AudioTrack *mAudioTrack;
-
+//    AudioTrack *mAudioTrack;
+    sp<AudioTrack> mAudioTrack;
     //bool mInitMediaClock;
     //MediaClock *mMediaClock;
 

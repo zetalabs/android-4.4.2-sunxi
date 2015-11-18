@@ -504,12 +504,14 @@ typedef struct hwc_display_contents_1 {
             int outbufAcquireFenceFd;
         };
     };
+    hwc_rect_t frame;
 
     /* List of layers that will be composed on the display. The buffer handles
      * in the list will be unique. If numHwLayers is 0, all composition will be
      * performed by SurfaceFlinger.
      */
     uint32_t flags;
+    uint32_t wallpaper_flag;
     size_t numHwLayers;
     hwc_layer_1_t hwLayers[0];
 
@@ -768,6 +770,12 @@ typedef struct hwc_composer_device_1 {
 
     int (*setDisplayParameter)(struct hwc_composer_device_1* dev, int disp,
             int cmd, int para0, int para1, int para2);
+
+    int (*setParameter)(struct hwc_composer_device_1* dev, int cmd, int disp,
+            int para0, int para1);
+
+    int (*getParameter)(struct hwc_composer_device_1* dev, int cmd, int disp,
+            int para0, int para1);
 
     /*
      * Reserved for future use. Must be NULL.
