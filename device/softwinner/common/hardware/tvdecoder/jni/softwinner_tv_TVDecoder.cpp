@@ -16,6 +16,10 @@
 # define NELEM(x) ((int) (sizeof(x) / sizeof((x)[0])))
 #endif
 
+#ifndef ANDROID_VIEW_SURFACE_JNI_ID
+#define ANDROID_VIEW_SURFACE_JNI_ID    "mNativeSurface"
+#endif
+
 namespace android {
 TVDecoderClient * mClient = new TVDecoderClient();
 

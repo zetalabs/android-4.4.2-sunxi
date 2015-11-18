@@ -303,6 +303,9 @@ extern "C" {
         CEDARV_COMMAND_OPEN_YV32_TRANSFROM,
         CEDARV_COMMAND_CLOSE_YV32_TRANSFROM,
         CEDARV_COMMAND_SET_DISPLAYFRAME_REQUESTMODE,
+
+        //*for omx cts decoder, we have to release the last frame in vbv buffer
+        CEDARV_COMMAND_SET_OMXCTS_DECODER
     }cedarv_io_cmd_e;
     
     
