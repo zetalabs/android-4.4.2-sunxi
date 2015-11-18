@@ -108,6 +108,12 @@ status_t SurfaceControl::setPosition(float x, float y) {
     const sp<SurfaceComposerClient>& client(mClient);
     return client->setPosition(mHandle, x, y);
 }
+status_t SurfaceControl::setPosition(int x, int y) {
+    status_t err = validate();
+    if (err < 0) return err;
+    const sp<SurfaceComposerClient>& client(mClient);
+    return client->setPosition(mHandle, x, y);
+}
 status_t SurfaceControl::setSize(uint32_t w, uint32_t h) {
     status_t err = validate();
     if (err < 0) return err;

@@ -717,6 +717,144 @@ static status_t copyBlt(
 
 // ----------------------------------------------------------------------------
 
+status_t Surface::lock(SurfaceInfo* other, Region* inOutDirtyRegion) {
+    ANativeWindow_Buffer outBuffer;
+
+    ARect temp;
+    ARect* inOutDirtyBounds = NULL;
+    if (inOutDirtyRegion) {
+        temp = inOutDirtyRegion->getBounds();
+        inOutDirtyBounds = &temp;
+    }
+
+#if 0
+    status_t err = SurfaceTextureClient::lock(&outBuffer, inOutDirtyBounds);
+#else
+    if (mLockedBuffer != 0) {
+        ALOGE("Surface::lock failed, already locked");
+        return INVALID_OPERATION;
+    }
+
+    if (!mConnectedToCpu) {
+        int err = Surface::connect(NATIVE_WINDOW_API_CPU);
+        if (err) {
+            return err;
+        }
+        // we're intending to do software rendering from this point
+        setUsage(GRALLOC_USAGE_SW_READ_OFTEN | GRALLOC_USAGE_SW_WRITE_OFTEN);
+    }
+
+    ANativeWindowBuffer* out;
+    int fenceFd = -1;
+    status_t err = dequeueBuffer(&out, &fenceFd);
+    ALOGE_IF(err, "dequeueBuffer failed (%s)", strerror(-err));
+    if (err == NO_ERROR) {
+        sp<GraphicBuffer> backBuffer(GraphicBuffer::getSelf(out));
+        sp<Fence> fence(new Fence(fenceFd));
+
+        err = fence->waitForever("Surface::lock");
+        if (err != OK) {
+            ALOGE("Fence::wait failed (%s)", strerror(-err));
+            cancelBuffer(out, fenceFd);
+            return err;
+        }
+
+        const Rect bounds(backBuffer->width, backBuffer->height);
+
+        Region newDirtyRegion;
+        if (inOutDirtyBounds) {
+            newDirtyRegion.set(static_cast<Rect const&>(*inOutDirtyBounds));
+            newDirtyRegion.andSelf(bounds);
+        } else {
+            newDirtyRegion.set(bounds);
+        }
+
+        // figure out if we can copy the frontbuffer back
+        const sp<GraphicBuffer>& frontBuffer(mPostedBuffer);
+        const bool canCopyBack = (frontBuffer != 0 &&
+                backBuffer->width  == frontBuffer->width &&
+                backBuffer->height == frontBuffer->height &&
+                backBuffer->format == frontBuffer->format);
+
+        if (canCopyBack) {
+            // copy the area that is invalid and not repainted this round
+            const Region copyback(mDirtyRegion.subtract(newDirtyRegion));
+            if (!copyback.isEmpty())
+                copyBlt(backBuffer, frontBuffer, copyback);
+        } else {
+            // if we can't copy-back anything, modify the user's dirty
+            // region to make sure they redraw the whole buffer
+            newDirtyRegion.set(bounds);
+            mDirtyRegion.clear();
+            Mutex::Autolock lock(mMutex);
+            for (size_t i=0 ; i<NUM_BUFFER_SLOTS ; i++) {
+                mSlots[i].dirtyRegion.clear();
+            }
+        }
+
+
+        { // scope for the lock
+            Mutex::Autolock lock(mMutex);
+            int backBufferSlot(getSlotFromBufferLocked(backBuffer.get()));
+            if (backBufferSlot >= 0) {
+                Region& dirtyRegion(mSlots[backBufferSlot].dirtyRegion);
+                mDirtyRegion.subtract(dirtyRegion);
+                dirtyRegion = newDirtyRegion;
+            }
+        }
+
+        mDirtyRegion.orSelf(newDirtyRegion);
+        if (inOutDirtyBounds) {
+            *inOutDirtyBounds = newDirtyRegion.getBounds();
+        }
+
+        void* vaddr;
+        status_t res = backBuffer->lock(
+                GRALLOC_USAGE_SW_READ_OFTEN | GRALLOC_USAGE_SW_WRITE_OFTEN,
+                newDirtyRegion.bounds(), &vaddr);
+
+        ALOGW_IF(res, "failed locking buffer (handle = %p)",
+                backBuffer->handle);
+
+        if (res != 0) {
+            err = INVALID_OPERATION;
+        } else {
+            mLockedBuffer = backBuffer;
+#if 0
+            outBuffer->width  = backBuffer->width;
+            outBuffer->height = backBuffer->height;
+            outBuffer->stride = backBuffer->stride;
+            outBuffer->format = backBuffer->format;
+            outBuffer->bits   = vaddr;
+#else
+            outBuffer.width  = backBuffer->width;
+            outBuffer.height = backBuffer->height;
+            outBuffer.stride = backBuffer->stride;
+            outBuffer.format = backBuffer->format;
+            outBuffer.bits   = vaddr;
+#endif
+        }
+    }
+#endif
+
+    if (err == NO_ERROR) {
+        other->w = uint32_t(outBuffer.width);
+        other->h = uint32_t(outBuffer.height);
+        other->s = uint32_t(outBuffer.stride);
+        other->usage = GRALLOC_USAGE_SW_READ_OFTEN | GRALLOC_USAGE_SW_WRITE_OFTEN;
+        other->format = uint32_t(outBuffer.format);
+        other->bits = outBuffer.bits;
+    }
+
+    if (inOutDirtyRegion) {
+        inOutDirtyRegion->set( static_cast<Rect const&>(temp) );
+    }
+
+    return err;
+}
+
+// ----------------------------------------------------------------------------
+
 status_t Surface::lock(
         ANativeWindow_Buffer* outBuffer, ARect* inOutDirtyBounds)
 {

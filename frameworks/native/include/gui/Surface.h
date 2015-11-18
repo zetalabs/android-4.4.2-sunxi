@@ -48,6 +48,15 @@ class Surface
     : public ANativeObjectBase<ANativeWindow, Surface, RefBase>
 {
 public:
+    struct SurfaceInfo {
+        uint32_t    w;
+        uint32_t    h;
+        uint32_t    s;
+        uint32_t    usage;
+        PixelFormat format;
+        void*       bits;
+        uint32_t    reserved[2];
+    };
 
     /*
      * creates a Surface from the given IGraphicBufferProducer (which concrete
@@ -145,6 +154,8 @@ protected:
     virtual int setUsage(uint32_t reqUsage);
 
 public:
+    // the lock/unlock APIs must be used from the same thread
+    virtual int lock(SurfaceInfo* info, Region* dirty = NULL);
     virtual int lock(ANativeWindow_Buffer* outBuffer, ARect* inOutDirtyBounds);
     virtual int unlockAndPost();
 

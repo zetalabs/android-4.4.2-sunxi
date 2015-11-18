@@ -59,6 +59,7 @@ LOCAL_SHARED_LIBRARIES := \
         libstagefright_foundation \
         libicuuc_48 \
 		libion            \
+		libcrypto         \
 		libskia 
 
 ifeq ($(PLATFORM_VERSION),2.3.4)
