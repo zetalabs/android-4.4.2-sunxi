@@ -65,6 +65,15 @@ public:
 };
 
 // ---------------------------------------------------------------------------
+class ReferenceMover;
+class ReferenceConverterBase {
+public:
+    virtual size_t getReferenceTypeSize() const = 0;
+    virtual void* getReferenceBase(void const*) const = 0;
+    inline virtual ~ReferenceConverterBase() { }
+};
+
+// ---------------------------------------------------------------------------
 
 class RefBase
 {
@@ -157,6 +166,9 @@ private:
 private:
     friend class ReferenceMover;
 
+    static void moveReferences(void* d, void const* s, size_t n,
+            const ReferenceConverterBase& caster);
+
     static void renameRefs(size_t n, const ReferenceRenamer& renamer);
 
     static void renameRefId(weakref_type* ref,
@@ -195,6 +207,8 @@ protected:
 
 private:
     friend class ReferenceMover;
+    inline static void moveReferences(void* d, void const* s, size_t n,
+            const ReferenceConverterBase& caster) { }
     inline static void renameRefs(size_t n, const ReferenceRenamer& renamer) { }
     inline static void renameRefId(T* ref,
             const void* old_id, const void* new_id) { }
