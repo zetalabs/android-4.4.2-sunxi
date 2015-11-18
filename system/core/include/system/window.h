@@ -290,6 +290,10 @@ enum {
     /* Buffers will be queued by the the camera HAL.
      */
     NATIVE_WINDOW_API_CAMERA = 4,
+
+    NATIVE_WINDOW_API_MEDIA_HW = 5,
+
+    NATIVE_WINDOW_API_CAMERA_HW = 6,
 };
 
 /* parameter for NATIVE_WINDOW_SET_BUFFERS_TRANSFORM */
