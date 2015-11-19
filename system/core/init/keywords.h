@@ -15,6 +15,7 @@ int do_insmod(int nargs, char **args);
 int do_mkdir(int nargs, char **args);
 int do_mount_all(int nargs, char **args);
 int do_mount(int nargs, char **args);
+int do_umount(int nargs, char **args);
 int do_powerctl(int nargs, char **args);
 int do_restart(int nargs, char **args);
 int do_restorecon(int nargs, char **args);
@@ -39,6 +40,8 @@ int do_chmod(int nargs, char **args);
 int do_loglevel(int nargs, char **args);
 int do_load_persist_props(int nargs, char **args);
 int do_wait(int nargs, char **args);
+int do_setupfs(int nargs, char **args);
+int do_insmod_modules(int nargs, char **args);
 #define __MAKE_KEYWORD_ENUM__
 #define KEYWORD(symbol, flags, nargs, func) K_##symbol,
 enum {
@@ -67,6 +70,7 @@ enum {
     KEYWORD(mkdir,       COMMAND, 1, do_mkdir)
     KEYWORD(mount_all,   COMMAND, 1, do_mount_all)
     KEYWORD(mount,       COMMAND, 3, do_mount)
+    KEYWORD(umount,      COMMAND, 1, do_umount)
     KEYWORD(on,          SECTION, 0, 0)
     KEYWORD(oneshot,     OPTION,  0, 0)
     KEYWORD(onrestart,   OPTION,  0, 0)
@@ -100,6 +104,8 @@ enum {
     KEYWORD(loglevel,    COMMAND, 1, do_loglevel)
     KEYWORD(load_persist_props,    COMMAND, 0, do_load_persist_props)
     KEYWORD(ioprio,      OPTION,  0, 0)
+    KEYWORD(setupfs,     COMMAND, 1, do_setupfs)
+    KEYWORD(insmod_modules,COMMAND, 1, do_insmod_modules)
 #ifdef __MAKE_KEYWORD_ENUM__
     KEYWORD_COUNT,
 };

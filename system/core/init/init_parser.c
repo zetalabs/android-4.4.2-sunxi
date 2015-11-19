@@ -115,6 +115,7 @@ int lookup_keyword(const char *s)
         if (!strcmp(s, "fup")) return K_ifup;
         if (!strcmp(s, "nsmod")) return K_insmod;
         if (!strcmp(s, "mport")) return K_import;
+        if (!strcmp(s, "nsmod_modules")) return K_insmod_modules;
         break;
     case 'k':
         if (!strcmp(s, "eycodes")) return K_keycodes;
@@ -157,12 +158,14 @@ int lookup_keyword(const char *s)
         if (!strcmp(s, "wapon_all")) return K_swapon_all;
         if (!strcmp(s, "ymlink")) return K_symlink;
         if (!strcmp(s, "ysclktz")) return K_sysclktz;
+        if (!strcmp(s, "etupfs")) return K_setupfs;
         break;
     case 't':
         if (!strcmp(s, "rigger")) return K_trigger;
         break;
     case 'u':
         if (!strcmp(s, "ser")) return K_user;
+        if (!strcmp(s, "mount")) return K_umount;
         break;
     case 'w':
         if (!strcmp(s, "rite")) return K_write;

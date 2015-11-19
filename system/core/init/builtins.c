@@ -238,9 +238,41 @@ int do_domainname(int nargs, char **args)
     return write_file("/proc/sys/kernel/domainname", args[1]);
 }
 
+/*exec <path> <arg1> <arg2> ... */
+#define MAX_PARAMETERS 64
 int do_exec(int nargs, char **args)
 {
-    return -1;
+    pid_t pid;
+    int status, i, j;
+    char *par[MAX_PARAMETERS];
+    if (nargs > MAX_PARAMETERS)
+    {
+        return -1;
+    }
+    for(i=0, j=1; i<(nargs-1) ;i++,j++)
+    {
+        par[i] = args[j];
+    }
+    par[i] = (char*)0;
+    pid = fork();
+    if (!pid)
+    {
+        char tmp[32];
+        int fd, sz;
+        get_property_workspace(&fd, &sz);
+        sprintf(tmp, "%d,%d", dup(fd), sz);
+        setenv("ANDROID_PROPERTY_WORKSPACE", tmp, 1);
+        execve(par[0],par,environ);
+        exit(0);
+    }
+    else
+    {
+        waitpid(pid, &status, 0);
+        if (WEXITSTATUS(status) != 0) {
+            ERROR("exec: pid %1d exited with return code %d: %s", (int)pid, WEXITSTATUS(status), strerror(status));
+        }
+    }
+    return 0;
 }
 
 int do_export(int nargs, char **args)
@@ -287,6 +319,7 @@ int do_format_userdata(int argc, char **argv)
    		return 1;
 	}
 }
+
 int do_hostname(int nargs, char **args)
 {
     return write_file("/proc/sys/kernel/hostname", args[1]);
@@ -582,6 +615,17 @@ int do_setenforce(int nargs, char **args) {
         return -errno;
     }
     return 0;
+}
+
+int do_umount(int nargs, char **args)
+{
+	ERROR("do_umount: %s \n", args[1]);
+	if(-1 == umount(args[1]) )
+	{
+		ERROR("do_umount error = %s", strerror(errno));
+		return -1;
+	}
+	return 0;
 }
 
 int do_setkey(int nargs, char **args)
@@ -895,4 +939,234 @@ int do_wait(int nargs, char **args)
         return wait_for_file(args[1], atoi(args[2]));
     } else
         return -1;
+}
+
+/* setupfs, format a device to ext4 */
+const char *mkfs = "/system/bin/make_ext4fs";
+
+int setup_fs(const char *blockdev)
+{
+    char buf[256], path[128];
+    pid_t child;
+    int status, n;
+
+    /* we might be looking at an indirect reference */
+    n = readlink(blockdev, path, sizeof(path) - 1);
+    //weng: fix the readlink error!
+    if (n < 0) {
+        fprintf(stderr, "readlink err: %d\n", errno);
+        n = strlen(blockdev);
+        strcpy(path, blockdev);
+    }
+    //weng: ====
+    if (n > 0) {
+        path[n] = 0;
+        if (!memcmp(path, "/dev/block/", 11))
+            blockdev = path + 11;
+    }
+
+    if (strchr(blockdev,'/')) {
+        fprintf(stderr,"not a block device name: %s\n", blockdev);
+        return 0;
+    }
+
+    sprintf(buf,"/sys/fs/ext4/%s", blockdev);
+    if (access(buf, F_OK) == 0) {
+        fprintf(stderr,"device %s already has a filesystem\n", blockdev);
+        return 0;
+    }
+    sprintf(buf,"/dev/block/%s", blockdev);
+
+    fprintf(stderr,"+++\n");
+
+tryagain:
+    ERROR("buffer : %s", buf);
+    child = fork();
+    if (child < 0) {
+        fprintf(stderr,"error: fork failed\n");
+        return 0;
+    }
+    if (child == 0) {
+        execl(mkfs, mkfs, buf, NULL);
+    }else{
+        waitpid(child, &status, 0);
+        if (WEXITSTATUS(status) != 0) {
+            ERROR("exec: pid %1d exited with return code %d: %s", (int)child, WEXITSTATUS(status), strerror(status));
+            sleep(3);
+            goto tryagain;
+        }
+    }
+
+    //while (waitpid(-1, &status, 0) != child) ;
+
+    return 1;
+}
+
+int do_setupfs(int argc, char **argv)
+{
+    int need_reboot = 0;
+
+	fprintf(stderr, "setup_fs v0.1\n");
+
+	return setup_fs(argv[1]);
+}
+
+int do_insmod_modules(int argc, char **argv)
+{
+    const char *modules = argv[1];
+    int ret = 0;
+
+    FILE *fp = NULL;
+    int back_name_len = 0;
+    int back_node_len = 0;
+    int front_name_len = 0;
+    int front_node_len = 0;
+    //int camera_num = 0;
+
+    char back_name[64];
+    char back_node[64];
+    char front_name[64];
+    char front_node[64];
+    //char num[1];
+
+    char str[128];
+
+    memset(back_name, 0, 64);
+    memset(back_node, 0, 64);
+    memset(front_name, 0, 64);
+    memset(front_node, 0, 64);
+    //memset(num, 0, 1);
+
+    memset(str, 0, 128);
+
+    if (strstr(modules, "camera"))
+    {
+        //fopen back_name
+        fp = fopen("/sys/devices/camera/back_name", "r");
+        if (NULL == fp )
+        {
+            ERROR("fopen /sys/devices/camera/back_name failed, waitting for 2ms time");
+            usleep(2000);
+            fp = fopen("/sys/devices/camera/back_name", "r");
+        }
+
+        if (NULL != fp)
+        {
+            back_name_len = fread(back_name, 1, 64, fp);
+            fclose(fp);
+            fp = NULL;
+        }
+        else
+        {
+            ERROR("fopen /sys/devices/camera/back_name failed");
+        }
+
+        //fopen back_node
+        fp = fopen("/sys/devices/camera/back_node", "r");
+        if (NULL != fp)
+        {
+            back_node_len = fread(back_node, 1, 64, fp);
+            fclose(fp);
+            fp = NULL;
+        }
+        else
+        {
+            ERROR(" fopen /sys/devices/camera/back_node failed");
+        }
+
+        //fopen front_name
+        fp = fopen("/sys/devices/camera/front_name", "r");
+        if (NULL != fp)
+        {
+            front_name_len = fread(front_name, 1, 64, fp);
+            fclose(fp);
+            fp = NULL;
+        }
+        else
+        {
+            ERROR(" fopen /sys/devices/camera/front_name failed");
+        }
+
+        //fopen front_node
+        fp = fopen("/sys/devices/camera/front_node", "r");
+        if (NULL != fp)
+        {
+            front_node_len = fread(front_node, 1, 64, fp);
+            fclose(fp);
+            fp = NULL;
+        }
+        else
+        {
+            ERROR("fopen /sys/devices/camera/front_node failed");
+        }
+        /*
+        //fopen num
+        fp = fopen("/sys/devices/camera/num", "r");
+        if (NULL != fp)
+        {
+            fread(num, 1, 1, fp);
+            fclose(fp);
+            fp = NULL;
+            camera_num = (int)(num[0] - 0x30);
+        }
+        else
+        {
+            ERROR("fopen /sys/device/camera/num failed");
+        }
+        */
+
+        //insmod back camera
+        if (back_name_len > 0)
+        {
+            memset(str, 0, 128);
+            sprintf(str, "/system/vendor/modules/%s.ko", back_name);
+            ret = insmod(str, "");
+            if(ret < 0)
+            {
+                ERROR("insmod %s, err: %s", str, strerror(errno));
+            }
+        }
+
+        //insmod front camera
+        if (front_name_len > 0)
+        {
+            memset(str, 0, 128);
+            sprintf(str, "/system/vendor/modules/%s.ko", front_name);
+            ret = insmod(str, "");
+            if(ret < 0)
+            {
+                ERROR("insmod %s, err: %s", str, strerror(errno));
+            }
+        }
+
+        //insmod back node
+        if (back_node_len > 0)
+        {
+            memset(str, 0, 128);
+            sprintf(str, "/system/vendor/modules/%s.ko", back_node);
+            ret = insmod(str, "");
+            if(ret < 0)
+            {
+                ERROR("insmod %s, err: %s", str, strerror(errno));
+            }
+        }
+
+        //insmod front node
+        if (front_node_len > 0)
+        {
+            memset(str, 0, 128);
+            sprintf(str, "/system/vendor/modules/%s.ko", front_node);
+            ret = insmod(str, "");
+            if(ret < 0)
+            {
+                ERROR("insmod %s, err: %s", str, strerror(errno));
+            }
+        }
+    }
+    else
+    {
+        ERROR("insmod_modules insmod camera failed");
+    }
+
+    return 1;
 }
