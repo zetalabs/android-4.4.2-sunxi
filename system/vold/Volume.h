@@ -58,6 +58,7 @@ protected:
     VolumeManager *mVm;
     bool mDebug;
     int mPartIdx;
+    int mPartNum;
     int mOrigPartIdx;
     bool mRetryMount;
 

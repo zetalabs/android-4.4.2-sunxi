@@ -38,6 +38,7 @@ DirectVolume::DirectVolume(VolumeManager *vm, const fstab_rec* rec, int flags) :
     mPaths = new PathCollection();
     for (int i = 0; i < MAX_PARTITIONS; i++)
         mPartMinors[i] = -1;
+    mPartNum = -1;
     mPendingPartMap = 0;
     mDiskMajor = -1;
     mDiskMinor = -1;
@@ -115,7 +116,14 @@ int DirectVolume::handleBlockEvent(NetlinkEvent *evt) {
                     if (!mPartsChangeFlag) {
                         if (!strncmp(getMountpoint(), "/mnt/sdcard", strlen("/mnt/sdcard"))
                             && !strncmp(dp, "/devices/platform/sunxi-mmc.", strlen("/devices/platform/sunxi-mmc."))) {
+                        #ifdef MMCBLK_AS_SDCARD
+                            if (minor == MMCBLK_AS_SDCARD) { //"mmcblk0p14"
+                                mPartsChangeFlag = 1;
+                            }
+                        #else
                             mPartsChangeFlag = 1;
+                            mPartNum = 0;
+                        #endif
                         }
                     }
                 }
@@ -239,6 +247,11 @@ void DirectVolume::handlePartitionAdded(const char *devpath, NetlinkEvent *evt) 
         SLOGE("Dv:partAdd: ignoring part_num = %d (max: %d)\n", part_num, MAX_PARTITIONS-1);
     } else {
         mPartMinors[part_num -1] = minor;
+#ifdef MMCBLK_AS_SDCARD
+        if (mPartsChangeFlag && (mPartNum == -1)) {
+            mPartNum = part_num -1;
+        }
+#endif
     }
     //mPendingPartMap &= ~(1 << part_num);
     mPendingPartMap &= ~(1 << mPartsEventCnt);
@@ -277,6 +290,7 @@ void DirectVolume::handleDiskChanged(const char *devpath, NetlinkEvent *evt) {
         SLOGW("Kernel block uevent missing 'NPARTS'");
         mDiskNumParts = 1;
     }
+    mPartsEventCnt = 0;
 
     int partmask = 0;
     int i;
@@ -383,24 +397,28 @@ void DirectVolume::handlePartitionRemoved(const char *devpath, NetlinkEvent *evt
 int DirectVolume::getDeviceNodes(dev_t *devs, int max) {
 
     if (mPartIdx == -1) {
-    if (!mPartsChangeFlag) {
-        // If the disk has no partitions, try the disk itself
-        if (!mDiskNumParts) {
-            devs[0] = MKDEV(mDiskMajor, mDiskMinor);
+        if (!mPartsChangeFlag) {
+            // If the disk has no partitions, try the disk itself
+            if (!mDiskNumParts) {
+                devs[0] = MKDEV(mDiskMajor, mDiskMinor);
+                return 1;
+            }
+
+            int i;
+            for (i = 0; i < mDiskNumParts; i++) {
+                if (i == max)
+                    break;
+                devs[i] = MKDEV(mDiskMajor, mPartMinors[i]);
+            }
+            return mDiskNumParts;
+        } else {
+            if (mPartNum == -1) {
+                devs[0] = MKDEV(mDiskMajor, mPartMinors[0]);
+            } else {
+                devs[0] = MKDEV(mDiskMajor, mPartMinors[mPartNum]);
+            }
             return 1;
         }
-
-        int i;
-        for (i = 0; i < mDiskNumParts; i++) {
-            if (i == max)
-                break;
-            devs[i] = MKDEV(mDiskMajor, mPartMinors[i]);
-        }
-        return mDiskNumParts;
-    } else {
-        devs[0] = MKDEV(mDiskMajor, mPartMinors[0]);
-        return 1;
-    }
     }
     devs[0] = MKDEV(mDiskMajor, mPartMinors[mPartIdx -1]);
     return 1;

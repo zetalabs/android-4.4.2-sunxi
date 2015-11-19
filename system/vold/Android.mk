@@ -70,7 +70,13 @@ LOCAL_SRC_FILES := \
 
 LOCAL_C_INCLUDES := $(common_c_includes)
 
-LOCAL_CFLAGS := -Werror=format
+BOARD_MMCBLK_AS_SDCARD := 14
+
+ifneq ($(BOARD_MMCBLK_AS_SDCARD),)
+common_cflags := -DMMCBLK_AS_SDCARD=$(BOARD_MMCBLK_AS_SDCARD)
+endif
+
+LOCAL_CFLAGS := -Werror=format $(common_cflags)
 
 LOCAL_SHARED_LIBRARIES := $(common_shared_libraries)
 

@@ -272,6 +272,8 @@ int Volume::deleteDeviceNode(const char *path) {
 
 char* Volume::createMountPoint(const char *path, int major, int minor) {
     char* mountpoint = (char*) malloc(sizeof(char)*256);
+    if (mountpoint == NULL)
+        return NULL;
     memset(mountpoint, 0, sizeof(char)*256);
     sprintf(mountpoint, "%s/%d_%d", path, major, minor);
     if (access(mountpoint, F_OK)) {
@@ -317,12 +319,16 @@ void Volume::saveUnmountPoint(char* mountpoint) {
 
 void Volume::deleteUnMountPoint(int clear) {
     int i = 0;
+    char mount_part[256];
     for (i = 0; i < MAX_UNMOUNT_PARTITIONS; i++) {
         if (mUnMountPart[i]) {
             SLOGW("Volume::deleteUnMountPoint: %s", mUnMountPart[i]);
+            snprintf(mount_part, sizeof(mount_part), "%s", mUnMountPart[i]);
             if (deleteMountPoint(mUnMountPart[i]) == 0) {
-                deleteDeviceNode(mUnMountPart[i]);
+                // FIXME: mUnMountPart[i] has been freed in deleteMountPoint()!!!
+                //deleteDeviceNode(mUnMountPart[i]);
                 mUnMountPart[i] = NULL;
+                deleteDeviceNode(mount_part);
             }
         }
     }
@@ -591,8 +597,13 @@ int Volume::mountVol() {
             SLOGE("mount iso9660 sucess! %s\n", devicePath);
         } else {
             SLOGE("%s failed FS checks (%s)", devicePath, strerror(errno));
-            deleteMountPoint(mMountPart[i]);
-            mMountPart[i] = NULL;
+            if (mMountPart[i]) {
+                if (deleteMountPoint(mMountPart[i])) {
+                    // force to free mMountPart[i]
+                    free(mMountPart[i]);
+                }
+                mMountPart[i] = NULL;
+            }
             setState(Volume::State_Idle);
             continue;
         }
@@ -739,6 +750,7 @@ int Volume::unmountVol(bool force, bool revert) {
     usleep(1000 * 1000); // Give the framework some time to react
 
     char service[64];
+    char mount_part[256];
     snprintf(service, 64, "fuse_%s", getLabel());
     property_set("ctl.stop", service);
     /* Give it a chance to stop.  I wish we had a synchronous way to determine this... */
@@ -763,10 +775,13 @@ int Volume::unmountVol(bool force, bool revert) {
                     SLOGE("Failed to unmount %s (%s)", mMountPart[i], strerror(errno));
                     goto fail_remount_secure;
                 }
+                snprintf(mount_part, sizeof(mount_part), "%s", mMountPart[i]);
                 if (deleteMountPoint(mMountPart[i])) {
                     saveUnmountPoint(mMountPart[i]);
                 } else {
-                    deleteDeviceNode(mMountPart[i]);
+                    // FIXME: mMountPart[i] has been freed in deleteMountPoint()!!!
+                    //deleteDeviceNode(mMountPart[i]);
+                    deleteDeviceNode(mount_part);
                 }
                 mMountPart[i] = NULL;
             }
