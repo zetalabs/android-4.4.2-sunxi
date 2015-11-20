@@ -36,6 +36,7 @@ PRODUCT_COPY_FILES += \
     device/softwinner/wing-imotom/init.sun7i.rc:root/init.sun7i.rc \
     device/softwinner/wing-imotom/init.recovery.sun7i.rc:root/init.recovery.sun7i.rc \
     device/softwinner/wing-imotom/ueventd.sun7i.rc:root/ueventd.sun7i.rc \
+    device/softwinner/wing-imotom/fstab.sun7i:root/fstab.sun7i \
     device/softwinner/wing-imotom/modules/modules/nand.ko:root/nand.ko
 
 PRODUCT_COPY_FILES += \
