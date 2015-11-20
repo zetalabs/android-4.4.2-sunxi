@@ -25,7 +25,7 @@ on early-fs
     insmod  /system/vendor/modules/hdcp.ko
         
     # insmod mali driver
-	#insmod /system/vendor/modules/ump.ko
+    #insmod /system/vendor/modules/ump.ko
     insmod /system/vendor/modules/mali.ko
     chmod 777 /dev/ump
     chmod 777 /dev/mali
@@ -65,7 +65,7 @@ on boot
     insmod /system/vendor/modules/mma7660.ko
     
 # insmod rtp driver
-	insmod /system/vendor/modules/sunxi-ts.ko
+    insmod /system/vendor/modules/sunxi-ts.ko
 
 # insmod video driver
     insmod /system/vendor/modules/cedarx.ko
@@ -86,10 +86,10 @@ on boot
     insmod /system/vendor/modules/uvcvideo_h264.ko
     
 # gpio module
-	insmod /system/vendor/modules/gpio_sw.ko
+    insmod /system/vendor/modules/gpio_sw.ko
 
 #tvd module
-	insmod /system/vendor/modules/sun7i_tvd.ko
+    insmod /system/vendor/modules/sun7i_tvd.ko
 
 # insmod network
     insmod /system/vendor/modules/usbnet.ko

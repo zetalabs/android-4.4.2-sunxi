@@ -657,7 +657,7 @@ static int console_init_action(int nargs, char **args)
         have_console = 1;
     close(fd);
 
-   // if( load_565rle_image(INIT_IMAGE_FILE) ) {
+    //if( load_565rle_image(INIT_IMAGE_FILE) ) {
     if( load_argb8888_image(INIT_IMAGE_FILE) ) {
         fd = open("/dev/tty0", O_WRONLY);
         if (fd >= 0) {
@@ -722,43 +722,44 @@ static void import_kernel_nv(char *name, int for_emulator)
 
 static int get_cpu_id(char* buf, size_t size)
 {
-	ssize_t i=0,j=0;
-	ssize_t index=0,len=0;
+    ssize_t i=0,j=0;
+    ssize_t index=0,len=0;
     int fd = open(CPUINFO, O_RDONLY, 0);
     if (fd == -1) {
         return -1;
     }
     ssize_t count = read(fd, buf, size);
-	close(fd);
-	if(count>0){
-		for(i=0;i<count;i++){
-			if(buf[i] == '\n'){
-				buf[i] = '\0';
-			}
-		}	
-	}else{
-		buf[0] = '\0';
-	}
-	while(!strstr((buf + index),KEYWORD)&&(index<count)){
-		if((len = strlen(buf + index))!=0){
-			index += len;
-		}else{
-			index += 1;
-		}
-	}
-	for(i=0;i<count - index;i++){
-		if(buf[index + i]==':')
-			break;
-	}
-	for(j=0;i<strlen(&buf[index+i]);j++)
-		buf[j] = buf[index + i + j + 2];
-	buf[j+1] = '/0';
+    close(fd);
+    if (count>0) {
+        for (i=0;i<count;i++) {
+            if (buf[i] == '\n') {
+                buf[i] = '\0';
+            }
+        }	
+    } else {
+        buf[0] = '\0';
+    }
+    while (!strstr((buf + index),KEYWORD)&&(index<count)) {
+        if ((len = strlen(buf + index))!=0) {
+            index += len;
+        } else {
+            index += 1;
+        }
+    }
+    for (i=0;i<count - index;i++) {
+        if (buf[index + i]==':')
+            break;
+    }
+    for (j=0;i<strlen(&buf[index+i]);j++)
+        buf[j] = buf[index + i + j + 2];
+    buf[j+1] = '/0';
     return strlen(buf);
 }
+
 static void export_kernel_boot_props(void)
 {
     char tmp[PROP_VALUE_MAX];
-	char cpuinfobuf[512];
+    char cpuinfobuf[512];
     int ret;
     unsigned i;
     struct {
@@ -771,7 +772,7 @@ static void export_kernel_boot_props(void)
         { "ro.boot.baseband", "ro.baseband", "unknown", },
         { "ro.boot.bootloader", "ro.bootloader", "unknown", },
     };
-	get_cpu_id(cpuinfobuf,sizeof(cpuinfobuf));
+    get_cpu_id(cpuinfobuf,sizeof(cpuinfobuf));
     cpuinfobuf[2]=cpuinfobuf[9];
     for (i=3;i<10;i++)
         cpuinfobuf[i]=cpuinfobuf[i+8];
@@ -892,6 +893,7 @@ static int bootchart_init_action(int nargs, char **args)
 
 static const struct selinux_opt seopts_prop[] = {
         { SELABEL_OPT_PATH, "/data/security/property_contexts" },
+        { SELABEL_OPT_PATH, "/data/system/property_contexts" },
         { SELABEL_OPT_PATH, "/property_contexts" },
         { 0, NULL }
 };
@@ -1082,7 +1084,7 @@ int main(int argc, char **argv)
     INFO("property init\n");
     if (!is_charger)
         property_load_boot_defaults();
-	get_kernel_cmdline_partitions();
+    get_kernel_cmdline_partitions();
     get_kernel_cmdline_signature();
     INFO("reading config file\n");
     init_parse_config_file("/init.rc");

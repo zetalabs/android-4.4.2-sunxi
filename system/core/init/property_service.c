@@ -437,6 +437,88 @@ void get_property_workspace(int *fd, int *sz)
     *sz = pa_workspace.size;
 }
 
+int get_dram_size(void)
+{
+    char *path = "/proc/meminfo";
+    FILE *fd;
+    char data[128];
+    char *key, *value, *tmp;
+    int total, dram_size = 1024;
+
+    fd = fopen(path, "r");
+    if (fd == NULL) {
+        ERROR("cannot open %s\n", path);
+        goto oops;
+    }
+
+    while (fgets(data, sizeof(data), fd)) {
+        key = data;
+        value = strchr(key, ':');
+        if (value == 0)
+            continue;
+        *value++ = 0;
+
+        if (strcmp(key, "MemTotal"))
+            continue; /* should not be here */
+
+        while (isspace(*value))
+            value++;
+
+        tmp = strchr(value, ' ');
+        *tmp = 0;
+        INFO("MemTotal: %sKB\n", value);
+        total = atoi(value);
+        if (total < 524288)
+            dram_size = 512;
+
+        break;
+    }
+
+    fclose(fd);
+oops:
+    return dram_size;
+}
+
+static int enable_adaptive_memory(void)
+{
+    char buf[PROP_VALUE_MAX];
+    int ret;
+
+    ret = property_get("ro.sys.adaptive_memory", buf);
+    if ((ret == 0) || (buf[0] == '0')) {
+        INFO("disable adaptive memory function\n");
+        return -1;
+    }
+
+    INFO("enable adaptive memory function\n");
+    if (get_dram_size() == 1024) {
+        property_set("dalvik.vm.heapsize", "384m");
+        property_set("dalvik.vm.heapstartsize", "8m");
+        property_set("dalvik.vm.heapgrowthlimit", "96m");
+        property_set("dalvik.vm.heapminfree", "2m");
+        property_set("dalvik.vm.heapmaxfree", "8m");
+    } else {
+        property_set("dalvik.vm.heapsize", "128m");
+        property_set("dalvik.vm.heapstartsize", "6m");
+        property_set("dalvik.vm.heapgrowthlimit", "64m");
+        property_set("dalvik.vm.heapminfree", "512K");
+        property_set("dalvik.vm.heapmaxfree", "2m");
+    }
+
+    ret = property_get("dalvik.vm.heapsize", buf);
+    INFO("dalvik.vm.heapsize=%s\n", buf);
+    ret = property_get("dalvik.vm.heapstartsize", buf);
+    INFO("dalvik.vm.heapstartsize=%s\n", buf);
+    ret = property_get("dalvik.vm.heapgrowthlimit", buf);
+    INFO("dalvik.vm.heapgrowthlimit=%s\n", buf);
+    ret = property_get("dalvik.vm.heapminfree", buf);
+    INFO("dalvik.vm.heapminfree=%s\n", buf);
+    ret = property_get("dalvik.vm.heapmaxfree", buf);
+    INFO("dalvik.vm.heapmaxfree=%s\n", buf);
+
+    return 0;
+}
+
 static void load_properties(char *data)
 {
     char *key, *value, *eol, *sol, *tmp;
@@ -462,6 +544,8 @@ static void load_properties(char *data)
 
         property_set(key, value);
     }
+
+    enable_adaptive_memory();
 }
 
 static void load_properties_from_file(const char *fn)
