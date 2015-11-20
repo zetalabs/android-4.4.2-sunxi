@@ -3,8 +3,10 @@ LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES:= \
+        ANetworkSession.cpp             \
         MediaSender.cpp                 \
         Parameters.cpp                  \
+        ParsedMessage.cpp               \
         rtp/RTPSender.cpp               \
         source/Converter.cpp            \
         source/MediaPuller.cpp          \
@@ -13,6 +15,11 @@ LOCAL_SRC_FILES:= \
         source/TSPacketizer.cpp         \
         source/WifiDisplaySource.cpp    \
         VideoFormats.cpp                \
+        wfdsink/XLinearRegression.cpp   \
+        wfdsink/RTPSource.cpp           \
+        wfdsink/RTPJitterBuffer.cpp     \
+        wfdsink/WfdSink.cpp             \
+        wfdsink/MiracastSink.cpp        \
 
 LOCAL_C_INCLUDES:= \
         $(TOP)/frameworks/av/media/libstagefright \

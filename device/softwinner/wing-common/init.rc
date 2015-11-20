@@ -481,15 +481,15 @@ service ueventd /sbin/ueventd
     critical
     seclabel u:r:ueventd:s0
 
-service healthd /sbin/healthd
-    class core
-    critical
-    seclabel u:r:healthd:s0
+#service healthd /sbin/healthd
+#    class core
+#    critical
+#    seclabel u:r:healthd:s0
 
-service healthd-charger /sbin/healthd -n
-    class charger
-    critical
-    seclabel u:r:healthd:s0
+#service healthd-charger /sbin/healthd -n
+#    class charger
+#    critical
+#    seclabel u:r:healthd:s0
 
 on property:selinux.reload_policy=1
     restart ueventd
@@ -530,7 +530,7 @@ service servicemanager /system/bin/servicemanager
     user system
     group system
     critical
-    onrestart restart healthd
+    #onrestart restart healthd
     onrestart restart zygote
     onrestart restart media
     onrestart restart surfaceflinger
@@ -684,10 +684,10 @@ service preinstall /system/bin/busybox sh /system/bin/preinstall.sh
     disabled
     oneshot
 
-#service tvdecoderserver /system/bin/tvdecoderserver
-#    class main
-#    user system
-#    group graphics
+service tvdecoderserver /system/bin/tvdecoderserver
+    class main
+    user system
+    group graphics
 
 on property:sys.boot_completed=1
     start preinstall
