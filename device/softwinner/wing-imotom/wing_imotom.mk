@@ -151,6 +151,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
 	ro.property.bluetooth.rtk8723a=true
 
 $(call inherit-product-if-exists, device/softwinner/wing-imotom/modules/modules.mk)
+include device/softwinner/wing-common/prebuild/google/products/gms.mk
+include device/softwinner/wing-common/prebuild/framework_aw/framework_aw.mk
 
 # Overrides
 PRODUCT_CHARACTERISTICS := tablet
