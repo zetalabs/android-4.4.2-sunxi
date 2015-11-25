@@ -548,7 +548,7 @@ service ril-daemon /system/bin/rild
 service surfaceflinger /system/bin/surfaceflinger
     class main
     user system
-    group graphics
+    group graphics drmrpc
     onrestart restart zygote
 
 service zygote /system/bin/app_process -Xzygote /system/bin --zygote --start-system-server
@@ -567,7 +567,7 @@ service drm /system/bin/drmserver
 service media /system/bin/mediaserver
     class main
     user media
-    group audio camera inet net_bt net_bt_admin net_bw_acct drmrpc sdcard_rw media_rw
+    group audio camera inet net_bt net_bt_admin net_bw_acct drmrpc sdcard_rw media_rw mediadrm
     ioprio rt 4
 
 service bootanim /system/bin/bootanimation

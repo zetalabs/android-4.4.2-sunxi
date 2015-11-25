@@ -65,7 +65,6 @@ public:
 };
 
 // ---------------------------------------------------------------------------
-class ReferenceMover;
 class ReferenceConverterBase {
 public:
     virtual size_t getReferenceTypeSize() const = 0;
