@@ -311,30 +311,68 @@ const char* jniStrError(int errnum, char* buf, size_t buflen) {
     }
 }
 
+static struct CachedFields {
+    jclass fileDescriptorClass;
+    jmethodID fileDescriptorCtor;
+    jfieldID descriptorField;
+    jmethodID referenceGet;
+} gCachedFields;
+
+jint JNI_OnLoad(JavaVM* vm, void*) {
+    JNIEnv* env;
+    if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) {
+        ALOGE("JavaVM::GetEnv() failed");
+        abort();
+    }
+
+    gCachedFields.fileDescriptorClass =
+            reinterpret_cast<jclass>(env->NewGlobalRef(env->FindClass("java/io/FileDescriptor")));
+    if (gCachedFields.fileDescriptorClass == NULL) {
+        abort();
+    }
+
+    gCachedFields.fileDescriptorCtor =
+            env->GetMethodID(gCachedFields.fileDescriptorClass, "<init>", "()V");
+    if (gCachedFields.fileDescriptorCtor == NULL) {
+        abort();
+    }
+
+    gCachedFields.descriptorField =
+            env->GetFieldID(gCachedFields.fileDescriptorClass, "descriptor", "I");
+    if (gCachedFields.descriptorField == NULL) {
+        abort();
+    }
+
+    gCachedFields.referenceGet =
+            env->GetMethodID(JniConstants::referenceClass, "get", "()Ljava/lang/Object;");
+    if (gCachedFields.referenceGet == NULL) {
+        abort();
+    }
+
+    return JNI_VERSION_1_6;
+}
+
 jobject jniCreateFileDescriptor(C_JNIEnv* env, int fd) {
     JNIEnv* e = reinterpret_cast<JNIEnv*>(env);
-    static jmethodID ctor = e->GetMethodID(JniConstants::fileDescriptorClass, "<init>", "()V");
-    jobject fileDescriptor = (*env)->NewObject(e, JniConstants::fileDescriptorClass, ctor);
+    jobject fileDescriptor = (*env)->NewObject(e,
+            gCachedFields.fileDescriptorClass, gCachedFields.fileDescriptorCtor);
     jniSetFileDescriptorOfFD(env, fileDescriptor, fd);
     return fileDescriptor;
 }
 
 int jniGetFDFromFileDescriptor(C_JNIEnv* env, jobject fileDescriptor) {
     JNIEnv* e = reinterpret_cast<JNIEnv*>(env);
-    static jfieldID fid = e->GetFieldID(JniConstants::fileDescriptorClass, "descriptor", "I");
-    return (*env)->GetIntField(e, fileDescriptor, fid);
+    return (*env)->GetIntField(e, fileDescriptor, gCachedFields.descriptorField);
 }
 
 void jniSetFileDescriptorOfFD(C_JNIEnv* env, jobject fileDescriptor, int value) {
     JNIEnv* e = reinterpret_cast<JNIEnv*>(env);
-    static jfieldID fid = e->GetFieldID(JniConstants::fileDescriptorClass, "descriptor", "I");
-    (*env)->SetIntField(e, fileDescriptor, fid, value);
+    (*env)->SetIntField(e, fileDescriptor, gCachedFields.descriptorField, value);
 }
 
 jobject jniGetReferent(C_JNIEnv* env, jobject ref) {
     JNIEnv* e = reinterpret_cast<JNIEnv*>(env);
-    static jmethodID get = e->GetMethodID(JniConstants::referenceClass, "get", "()Ljava/lang/Object;");
-    return (*env)->CallObjectMethod(e, ref, get);
+    return (*env)->CallObjectMethod(e, ref, gCachedFields.referenceGet);
 }
 
 /*
