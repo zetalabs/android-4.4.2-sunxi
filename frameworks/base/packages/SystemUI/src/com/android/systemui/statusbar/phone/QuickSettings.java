@@ -143,7 +143,12 @@ class QuickSettings {
         mCm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
         if(mCm != null) {
             NetworkInfo networkinfo = mCm.getNetworkInfo(ConnectivityManager.TYPE_ETHERNET);
-            if(networkinfo.isConnected()) {
+            if(networkinfo == null) {
+                Log.e("QuickSettings", "QuickSettings() networkinfo is null");
+            } else {
+                Log.i("QuickSettings", "QuickSettings() networkinfo is not null");
+            }
+            if((networkinfo != null) && networkinfo.isConnected()) {
                 mEthernetConnected = true;
             } else {
                 mEthernetConnected = false;
@@ -889,7 +894,12 @@ class QuickSettings {
         mCm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         if(mCm != null) {
             NetworkInfo networkinfo = mCm.getNetworkInfo(ConnectivityManager.TYPE_ETHERNET);
-            if(networkinfo.isConnected()) {
+            if(networkinfo == null) {
+                Log.e("QuickSettings", "updateEthernetStatus() networkinfo is null");
+            } else {
+                Log.i("QuickSettings", "updateEthernetStatus() networkinfo is not null");
+            }
+            if((networkinfo != null) && networkinfo.isConnected()) {
                 mEthernetConnected = true;
             } else {
                 mEthernetConnected = false;
