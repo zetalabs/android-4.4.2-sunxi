@@ -25,6 +25,7 @@ extern  "C" int delete_module(const char *, unsigned int);
 
 #define INSMOD_PATH                     ("system/vendor/modules/")
 #define I2C_DEVICE_CONFIG_PATH          ("data/device.info")
+#define PROC_MODULES_PATH               ("proc/modules")
 #define LINE_LENGTH  (128)
 
 static char name[LINE_LENGTH] = {'\0'};
@@ -82,7 +83,7 @@ static char * get_module_name(char * buf)
         ALOGD("the buf is null !");
         return NULL;
     }
-    memset(&name,0,sizeof(name));
+    memset(name,0,sizeof(name));
     position1 = strchr(buf,ch);
     position2 = strrchr(buf,ch);
     s1 = position1 - buf + 1;
@@ -106,18 +107,65 @@ static char * get_module_name(char * buf)
     return name;
 }
 
+static int is_alpha(char chr)
+{
+    int ret = -1;
+    ret = ((chr >= 'a') && (chr <= 'z') ) ? 0 : 1;
+    return ret;
+}
+
+static int is_module_insmoded(char *name)
+{
+    FILE *fp;
+    char buf[LINE_LENGTH] = {0};
+    int i;
+    memset(buf,0,sizeof(buf));
+    if ((fp = fopen(PROC_MODULES_PATH,"rb")) == NULL) {
+        ALOGD("%s(%d) can't not open file %s!\n", __func__, __LINE__, PROC_MODULES_PATH);
+        return 0;
+    }
+
+    while(fgets(buf, LINE_LENGTH , fp)) {
+#ifdef DEBUG
+        ALOGD("%s(%d) buf:%s\n", __func__, __LINE__, buf);
+#endif
+        if (!is_alpha(buf[0])){
+            for (i=0; i<LINE_LENGTH; i++) {
+                if (buf[i] == ' ' || buf[i] == '\0') {
+                    buf[i] = '\0';
+                    break;
+                }
+            }
+
+            if (!strcmp(buf, name)) {
+                ALOGD("%s has been insmoded!", name);
+                fclose(fp);
+                return 1;
+            }
+        }
+        memset(buf,0,sizeof(buf));
+    }
+
+    fclose(fp);
+    ALOGD("%s has not been insmoded!", name);
+    return 0;
+}
+
 static int insmod_modules(char * buf)
 {
     char * module_name;
     char insmod_name[128];
     char ko[] = ".ko";
-    memset(&insmod_name,0,sizeof(insmod_name));
+    memset(insmod_name,0,sizeof(insmod_name));
 
     module_name = get_module_name(buf);
 #ifdef DEBUG
     ALOGD("module_name:%s\n",module_name);
 #endif
     if(module_name != NULL){
+        if (is_module_insmoded(module_name))
+            return 1;
+
         sprintf(insmod_name,"%s%s%s",INSMOD_PATH,module_name,ko);
 
 #ifdef  DEBUG
@@ -136,18 +184,11 @@ static int insmod_modules(char * buf)
     return 1;
 }
 
-static int is_alpha(char chr)
-{
-    int ret = -1;
-    ret = ((chr >= 'a') && (chr <= 'z') ) ? 0 : 1;
-    return ret;
-}
-
 static int get_cfg(void)
 {
     FILE *fp;
     char buf[LINE_LENGTH] = {0};
-    memset(&buf,0,sizeof(buf));
+    memset(buf,0,sizeof(buf));
     if((fp = fopen(I2C_DEVICE_CONFIG_PATH,"rb")) == NULL) {
         ALOGD("can't not open file!\n");
         return 0;
@@ -164,7 +205,7 @@ static int get_cfg(void)
                 return 0;
             }
         }
-        memset(&buf,0,sizeof(buf));
+        memset(buf,0,sizeof(buf));
     }
 
     fclose(fp);
