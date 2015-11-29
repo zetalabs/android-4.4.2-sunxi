@@ -230,46 +230,53 @@ public class ZygoteInit {
     static void preload() {
         preloadClasses();
         preloadResources();
-        preloadOpenGL();
+        //preloadOpenGL();
     }
 
     private static void preloadOpenGL() {
         if (!SystemProperties.getBoolean(PROPERTY_DISABLE_OPENGL_PRELOADING, false)) {
+            long startTime = SystemClock.uptimeMillis();
+            Log.i(TAG, "Preloading OpenGL...");
             EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
+            Log.i(TAG, "...preloaded OpenGL in "
+                    + (SystemClock.uptimeMillis()-startTime) + "ms.");
+        } else {
+            Log.i(TAG, "Disable preloading OpenGL...");
         }
     }
-    private static Thread mCThread = new Thread(new Runnable(){
-    	@Override
-    	public void run(){
-    		preloadClasses();
-    	}
+
+    private static Thread mCThread = new Thread(new Runnable() {
+        @Override
+        public void run() {
+            preloadClasses();
+        }
     });
     
-    private static Thread mRThread = new Thread(new Runnable(){
-    	@Override
-    	public void run(){
-    		preloadResources();
+    private static Thread mRThread = new Thread(new Runnable() {
+        @Override
+        public void run() {
+            preloadResources();
     	}
     });
 
-	   private static Thread mGThread = new Thread(new Runnable(){
-    	@Override
-    	public void run(){
-    		preloadOpenGL();
-    	}
+    private static Thread mGThread = new Thread(new Runnable() {
+        @Override
+        public void run() {
+            preloadOpenGL();
+        }
     });
 
-    static void asyncPreload(){
-    	try{
-    		mCThread.start();
-    		mRThread.start();
-			mGThread.start();
-			mGThread.join();
-    		mRThread.join();
-    		mCThread.join();
-    	}catch(InterruptedException e){
-    		Log.e(TAG,"asyncPreload failed");
-    	}
+    static void asyncPreload() {
+        try {
+                mCThread.start();
+                mRThread.start();
+                //mGThread.start();
+                //mGThread.join();
+                mRThread.join();
+                mCThread.join();
+        } catch (InterruptedException e) {
+            Log.e(TAG,"asyncPreload failed");
+        }
     }
 
     /**
@@ -593,7 +600,7 @@ public class ZygoteInit {
             EventLog.writeEvent(LOG_BOOT_PROGRESS_PRELOAD_START,
                 SystemClock.uptimeMillis());
             //preload();
-			 asyncPreload();
+            asyncPreload();
             EventLog.writeEvent(LOG_BOOT_PROGRESS_PRELOAD_END,
                 SystemClock.uptimeMillis());
 
