@@ -12,8 +12,8 @@ TARGET_CPU_VARIANT := cortex-a7
 TARGET_ARCH_VARIANT := armv7-a-neon
 ARCH_ARM_HAVE_TLS_REGISTER := true
 
-TARGET_BOARD_PLATFORM := exDroid
-TARGET_BOOTLOADER_BOARD_NAME := wing
+TARGET_BOARD_PLATFORM := wing
+TARGET_BOOTLOADER_BOARD_NAME := exdroid
 
 USE_OPENGL_RENDERER := true
 
@@ -23,7 +23,7 @@ TARGET_PROVIDES_INIT_RC :=true
 # no hardware camera
 USE_CAMERA_STUB := true
 
-#audio
+# audio
 HAVE_HTC_AUDIO_DRIVER := true
 BOARD_USES_GENERIC_AUDIO := true
 
@@ -34,8 +34,27 @@ BOARD_USES_GENERIC_AUDIO := true
 CEDARX_CHIP_VERSION := F51
 CEDARX_USE_SWAUDIO := Y
 
-#widevine
+# widevine
 BOARD_WIDEVINE_OEMCRYPTO_LEVEL := 3
 
 # hardware module include file path
-TARGET_HARDWARE_INCLUDE := $(TOP)/device/softwinner/common/hardware/include
+TARGET_HARDWARE_INCLUDE := $(TOP)/device/softwinner/wing-common/hardware/include
+
+
+BOARD_SEPOLICY_DIRS := \
+	device/softwinner/wing-common/sepolicy
+
+BOARD_SEPOLICY_UNION := \
+    file_contexts \
+    genfs_contexts \
+    app.te \
+    mediaserver.te \
+    domain.te \
+    untrusted_app.te \
+    device.te \
+    surfaceflinger.te \
+    system.te \
+    healthd.te \
+    vold.te \
+    mount.te \
+    netd.te
