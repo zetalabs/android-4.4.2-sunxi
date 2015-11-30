@@ -19,7 +19,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 LOCAL_MODULE := busybox
 LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE_PATH := $(TARGET_OUT)/bin
+LOCAL_MODULE_PATH := $(TARGET_ROOT_OUT)/sbin
 LOCAL_SRC_FILES := $(LOCAL_MODULE)
 LOCAL_MODULE_CLASS := FAKE
 include $(BUILD_PREBUILT)
@@ -116,16 +116,6 @@ include $(BUILD_PREBUILT)
 #######################
 
 include $(CLEAR_VARS)
-LOCAL_MODULE := data_copy.sh
-LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE_PATH := $(TARGET_OUT)/bin
-LOCAL_SRC_FILES := $(LOCAL_MODULE)
-LOCAL_MODULE_CLASS := FAKE
-include $(BUILD_PREBUILT)
-
-#######################
-
-include $(CLEAR_VARS)
 LOCAL_MODULE := preinstall.sh
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_PATH := $(TARGET_OUT)/bin
@@ -147,15 +137,6 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := su
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_PATH := $(TARGET_OUT)/xbin
-LOCAL_SRC_FILES := $(LOCAL_MODULE)
-LOCAL_MODULE_CLASS := FAKE
-include $(BUILD_PREBUILT)
-
-#######################
-include $(CLEAR_VARS)
-LOCAL_MODULE := flushcache.sh
-LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE_PATH := $(TARGET_OUT)/bin
 LOCAL_SRC_FILES := $(LOCAL_MODULE)
 LOCAL_MODULE_CLASS := FAKE
 include $(BUILD_PREBUILT)

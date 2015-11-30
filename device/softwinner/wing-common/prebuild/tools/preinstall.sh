@@ -1,51 +1,44 @@
-#!/system/bin/busybox sh
+#!/sbin/busybox sh
 
-BUSYBOX="/system/bin/busybox"
-
-/system/bin/chown system:system /dev/block/by-name/misc
-/system/bin/chmod 0660 /dev/block/by-name/misc
+BUSYBOX="/sbin/busybox"
 
 mkdir /bootloader
-mount -t vfat /dev/block/by-name/bootloader  /bootloader
+mount -t vfat /dev/block/by-name/bootloader /bootloader
 
-if [ ! -e /data/system.notfirstrun ]; then	
-    echo "do preinstall job"	
-  
-	/system/bin/sh /system/bin/pm preinstall /system/preinstall
-	/system/bin/sh /system/bin/pm preinstall /sdcard/preinstall
-	/system/bin/sh /system/bin/data_copy.sh
+if [ ! -e /data/system.notfirstrun ] ; then
+    echo "do preinstall job"
 
-
-	$BUSYBOX touch /data/system.notfirstrun	
+    /system/bin/sh /system/bin/pm preinstall /system/preinstall
+    /system/bin/sh /system/bin/pm preinstall /sdcard/preinstall
 	
-	 mkdir /databk
-   mount -t ext4 /dev/block/by-name/databk /databk
-   rm /databk/data_backup.tar
-   umount /databk
-   rmdir /databk
-   echo "preinstall ok"
+	$BUSYBOX cp /system/etc/chrome-command-line /data/local/
+	$BUSYBOX chmod 777 /data/local/chrome-command-line
 
-elif [ -e /bootloader/data.need.backup ];then
-   echo "data backup:tar /databk/data_backup.tar /data"
-   mkdir /databk
-   mount -t ext4 /dev/block/by-name/databk /databk
-   
-   rm /databk/data_backup.tar
+    $BUSYBOX touch /data/system.notfirstrun
 
-   $BUSYBOX tar -cf /databk/data_backup.tar /data
-   rm /bootloader/data.need.backup
-  
-   umount /databk
-   rmdir /databk
+    mkdir /databk
+    mount -t ext4 /dev/block/by-name/databk /databk
+    rm /databk/data_backup.tar
+    umount /databk
+    rmdir /databk
+    echo "preinstall ok"
 
-else 
-   umount /databk
-   rmdir /databk
-   echo "do nothing"
+elif [ -e /bootloader/data.need.backup ] ; then
+    echo "data backup:tar /databk/data_backup.tar /data"
+    mkdir /databk
+    mount -t ext4 /dev/block/by-name/databk /databk
+
+    rm /databk/data_backup.tar
+
+    $BUSYBOX tar -cf /databk/data_backup.tar --exclude=data/media /data
+    rm /bootloader/data.need.backup
+
+    umount /databk
+    rmdir /databk
+
+else
+    echo "do nothing"
 fi
+
 umount /bootloader
 rmdir /bootloader
-
-
-
-
