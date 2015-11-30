@@ -7,7 +7,6 @@
 list_files() {
 cat <<EOF
 app/Books.apk
-app/BrowserProviderProxy.apk
 app/CalendarGoogle.apk
 app/Drive.apk
 app/GalleryGoogle.apk

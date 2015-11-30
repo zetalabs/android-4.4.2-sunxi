@@ -79,14 +79,3 @@ LOCAL_MODULE_PATH := $(TARGET_OUT_ETC)/
 LOCAL_SRC_FILES := $(LOCAL_MODULE)
 
 include $(BUILD_PREBUILT)
-
-# ====  chrome-command-line ============
-#########################
-include $(CLEAR_VARS)
-LOCAL_MODULE := chrome-command-line
-LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE_CLASS := ETC
-# # This will install the file in /data/local/
-LOCAL_MODULE_PATH := $(TARGET_OUT)/preinstall
-LOCAL_SRC_FILES := $(LOCAL_MODULE)
-include $(BUILD_PREBUILT)

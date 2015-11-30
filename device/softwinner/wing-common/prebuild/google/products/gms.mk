@@ -1,34 +1,31 @@
 # Add Google Apps and Services
 PRODUCT_PACKAGES += \
 	CalendarGoogle \
+	Gmail2 \
 	GoogleContactsSyncAdapter \
 	GoogleEars \
 	LatinImeGoogle \
+	Maps \
 	MediaUploader \
-	Music2 \
-    Chrome \
-    BrowserProviderProxy \
-	FaceLock
+	Music2 
 
 #not use
 #GalleryGoogle
 #	Books \
+#	Drive \
+#	GenieWidget \
+#	GoogleEarth \
+#	Hangouts \
+#	Keep \
 #	Magazines \
 #	PlayGames \
 #	PlusOne \
-#	Videos \
-#	YouTube \
-#	Gmail2 \
-#	GenieWidget \
-#	Wallet \
-#	Drive \
-#	GoogleHome \
-#	Keep \
 #	QuickOffice \
-#	GoogleEarth \
-#	Hangouts \
-#	Maps \
 #	Street \
+#	Videos \
+#	GoogleHome \
+#	Wallet \
+#	YouTube \
 
 
 #priv apps	
@@ -79,7 +76,6 @@ PRODUCT_PACKAGES += \
 	librs.retrolux \
 	libvorbisencoder \
 	librs.fixedframe \
-    libchromeview \
 	libwebrtc_audio_preprocessing \
 	libgames_rtmp_jni \
 	librsjni \
@@ -96,8 +92,7 @@ PRODUCT_PACKAGES += \
 	libvcdecoder_jni \
 	libdocscanner_image-v7a \
 	libvideochat_jni \
-	libRSSupport \
-	libfacelock_jni.so
+	libRSSupport
 	
 #not use
 #libjni_eglfence
@@ -107,7 +102,6 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
 	phonelist \
 	compile_grammar.config \
-	chrome-command-line \
 	clg \
 	grammar.config \
 	dictation.config \
