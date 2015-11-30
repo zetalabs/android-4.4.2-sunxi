@@ -116,17 +116,17 @@ int uevent_next_event(uevent_cb cb)
     int count,nr;
            
     while (1) {        
-        fds.fd = fd;
+      fds.fd = fd;
     	fds.events = POLLIN;
     	fds.revents = 0;
     	
         nr = poll(&fds, 1, -1);
      	     	
-        if(nr > 0 && ((fds.revents & POLLIN) == POLLIN)) 
+        if((nr > 0) && (fds.revents & POLLIN)) 
         {
             memset(buffer, 0, UEVENT_MSG_LEN+2);
             count = recv(fd, buffer, UEVENT_MSG_LEN+2, 0);
-            if (count > 0) {
+            if (count>0 && strcmp(buffer, "change@/devices/platform/disp")!=0 ) {
                parse_event(buffer, &event); 
                (*cb)(&event);
             } 

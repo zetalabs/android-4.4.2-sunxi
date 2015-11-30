@@ -73,7 +73,7 @@ public class DevicePath{
 	}
 	
 	/**
-	 * »ñÈ¡×ÜÉè±¸µÄÁĞ±í
+	 * è·å–æ€»è®¾å¤‡çš„åˆ—è¡¨
 	 * @return
 	 */
 	public ArrayList<String> getTotalDevicesList()
@@ -122,7 +122,7 @@ public class DevicePath{
 					String[] list = file.list();
 					for(int j = 0; j < list.length; j++)
 					{
-						/* Èç¹ûÄ¿Â¼ÃüÃû¹æÔò²»Âú×ã"Ö÷Éè±¸ºÅ:´ÎÉè±¸ºÅ"(µ±Ç°·ÖÇøµÄÃüÃû¹æÔò),Ôò·µ»Øfalse */
+						/* å¦‚æœç›®å½•å‘½åè§„åˆ™ä¸æ»¡è¶³"ä¸»è®¾å¤‡å·:æ¬¡è®¾å¤‡å·"(å½“å‰åˆ†åŒºçš„å‘½åè§„åˆ™),åˆ™è¿”å›false */
 						int lst = list[j].lastIndexOf("_");
 						if(lst != -1 && lst != (list[j].length() -1))
 						{
@@ -136,7 +136,7 @@ public class DevicePath{
 							}
 							catch(NumberFormatException e)
 							{
-								/* Èç¹û¸Ã×Ö·û´®²»ÄÜ±»½âÎöÎªÊı×Ö,ÔòÍË³ö */
+								/* å¦‚æœè¯¥å­—ç¬¦ä¸²ä¸èƒ½è¢«è§£æä¸ºæ•°å­—,åˆ™é€€å‡º */
 								return false;
 							}
 						}

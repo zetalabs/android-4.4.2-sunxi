@@ -36,8 +36,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -108,10 +106,6 @@ public final class Main extends ListActivity implements FileOperateCallbacks{
 	private static final int F_MENU_ATTACH = 0x0c;			//context menu id
 	private static final int F_MENU_COPY =   0x0d;			//context menu id
 	private static final int SETTING_REQ = 	 0x10;			//request code for intent
-
-	private static final int MESSAGE_CONTROL = 2;
-	private final Handler mMessageHandler = new MainHandler();
-	private boolean mIsContextMenuResponded = false;
 
 	private FileManager mFileMag;
 	private EventHandler mHandler;
@@ -427,18 +421,6 @@ public final class Main extends ListActivity implements FileOperateCallbacks{
         filter.addDataScheme("file"); 
         registerReceiver(mReceiver, filter);   		
     }
-
-	private class MainHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MESSAGE_CONTROL: {
-                    mIsContextMenuResponded = false;
-                    break;
-                }
-            }
-        }
-    }
 	
 	private void getFocusForButton(int id)
 	{
@@ -498,10 +480,6 @@ public final class Main extends ListActivity implements FileOperateCallbacks{
 	 */
     @Override
     public void onListItemClick(ListView parent, View view, int position, long id) {
-    	if(mIsContextMenuResponded == true)
-    	{
-			return;
-    	}
     	final String item = getCurrentFileName(position);
     	File file = new File(item);
     	boolean multiSelect = mHandler.isMultiSelected();
@@ -585,7 +563,7 @@ public final class Main extends ListActivity implements FileOperateCallbacks{
 			    		Intent movieIntent = new Intent();
 			    		
 			    		//add by Bevis, for VideoPlayer to create playlist
-			    		//movieIntent.putExtra(MediaStore.PLAYLIST_TYPE, MediaStore.PLAYLIST_TYPE_CUR_FOLDER);
+			    		movieIntent.putExtra(MediaStore.PLAYLIST_TYPE, MediaStore.PLAYLIST_TYPE_CUR_FOLDER);
 			    		
 			    		movieIntent.putExtra(MediaStore.EXTRA_FINISH_ON_COMPLETION, false);
 			    		movieIntent.setAction(android.content.Intent.ACTION_VIEW);
@@ -895,8 +873,7 @@ public final class Main extends ListActivity implements FileOperateCallbacks{
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo info) {
     	super.onCreateContextMenu(menu, v, info);
-    	mIsContextMenuResponded = true;
-		mMessageHandler.sendEmptyMessageDelayed(MESSAGE_CONTROL, 500);
+    	
     	boolean multi_data = mHandler.hasMultiSelectData();
     	AdapterContextMenuInfo _info = (AdapterContextMenuInfo)info;
     	if(info == null)
@@ -1099,21 +1076,29 @@ public final class Main extends ListActivity implements FileOperateCallbacks{
     			create.setOnClickListener(new OnClickListener() {
     				public void onClick (View v) {
     					if (input.getText().length() >= 1) {
-    						if (mFileMag.createDir(mFileMag.getCurrentDir() + "/", input.getText().toString()) == 0)
+    						if (mFileMag.createDir(mFileMag.getCurrentDir() + "/", input.getText().toString()) == 0){
     							Toast.makeText(Main.this, 
     										   "Folder " + input.getText().toString() + " created", 
     										   Toast.LENGTH_LONG).show();
-    						else
+
+                                input.setText("");
+                            }
+                            else{
     							Toast.makeText(Main.this, getResources().getString(R.string.not_created), Toast.LENGTH_SHORT).show();
-    					}
-    					
+    				        }
+                        }
+    				
+                        input.setText("");
     					dialog.dismiss();
     					String temp = mFileMag.getCurrentDir();
     					mHandler.updateDirectory(mFileMag.getNextDir(temp));
     				}
     			});
     			cancel.setOnClickListener(new OnClickListener() {
-    				public void onClick (View v) {	dialog.dismiss(); }
+    				public void onClick (View v) {
+                        input.setText("");
+                        dialog.dismiss(); 
+                    }
     			});
     		break; 
     		case D_MENU_RENAME:

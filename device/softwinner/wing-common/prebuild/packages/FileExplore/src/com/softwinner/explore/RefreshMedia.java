@@ -30,34 +30,51 @@ public class RefreshMedia
 	
 	public RefreshMedia(Context c)
 	{
-		this.mContext = c;
+			this.mContext = c;
 	}
+	
+	public void fileScan(String file){
+			File f = new File(file);
+      Uri mUri = Uri.fromFile(f);
+    	mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, mUri));
+  }
+    
+  public void folderScan(String path){
+			File file = new File(path);
+			
+			if(file.isDirectory()){
+					File[] array = file.listFiles();
+					
+					for(int i=0;i<array.length;i++){
+						File f = array[i];
+						
+						if(f.isFile()){//FILE TYPE
+								fileScan(f.getAbsolutePath());
+						}
+						else {//FOLDER TYPE
+								folderScan(f.getAbsolutePath());
+						}
+					}
+			}
+  }
 	
 	public void notifyMediaAdd(String file)
 	{
-    	File mfile = new File(file);
-		if(mfile.exists())
-		{
-			/*
-			 * notify the media to scan 
-			 */
-			Uri mUri = Uri.fromFile(mfile);
-			Intent mIntent = new Intent();
-			mIntent.setData(mUri);
-			mIntent.setAction(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-			mContext.sendBroadcast(mIntent);
-		}
+	    File mfile = new File(file);
+			if(mfile.exists() && !mfile.isDirectory())
+			{
+					/*
+					 * notify the media to scan 
+					 */
+					fileScan(file);
+
+			}else if(mfile.exists() && mfile.isDirectory()){
+					folderScan(file);
+			}
 	}
 	
 	public void notifyMediaDelete(String file)
 	{
-	    notifyMediaDeleteForScanner(file);
-	    notifyMediaDeleteFor4K(file);
-	    
-	}
-	
-	private void notifyMediaDeleteForScanner(String file){
-	    //for MediaScanner
 		final int ID_AUDIO_COLUMN_INDEX = 0;
         final int PATH_AUDIO_COLUMN_INDEX = 1;
 		String[] PROJECTION = new String[] {
@@ -100,13 +117,4 @@ public class RefreshMedia
 		}
 	}
 	
-	private void notifyMediaDeleteFor4K(String file){
-	    //for 4k player
-	    File mfile = new File(file);
-	    Uri mUri = Uri.fromFile(mfile);
-		Intent mIntent = new Intent();
-		mIntent.setData(mUri);
-		mIntent.setAction("android.intent.action.softwinner.MEDIA_SCANNER_DELETE_FILE");
-		mContext.sendBroadcast(mIntent);
-	}
 }

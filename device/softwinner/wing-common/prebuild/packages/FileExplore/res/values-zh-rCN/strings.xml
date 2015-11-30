@@ -122,7 +122,6 @@
     <string name="sure_cover_file">"确信要覆盖文件:"</string>
     <string name="sure_cover_files">"确信要覆盖其中的"</string>
     <string name="file_num">"个文件"</string>
-    <string name="not_enough_space">"磁盘没足够空间"</string>
     
     <string name="paste_success">"粘贴成功"</string>
     <string name="paste_fail">"粘贴失败"</string>

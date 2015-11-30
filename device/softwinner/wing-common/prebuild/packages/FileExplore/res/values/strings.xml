@@ -122,7 +122,6 @@
     <string name="sure_cover_file">Sure that cover the file:</string>
     <string name="sure_cover_files">Sure that cover </string>
     <string name="file_num">files</string>
-    <string name="not_enough_space">Not enough space in device</string>
     
     <string name="paste_success">File successfully copied and pasted</string>
     <string name="paste_fail">Copy pasted failed</string>

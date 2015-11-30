@@ -34,7 +34,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
-import android.os.StatFs;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -254,11 +253,9 @@ public class EventHandler implements OnClickListener, OnItemLongClickListener{
 		File oldFile = new File(oldLocation);
 		String name = oldFile.getName();
 		File newDir = new File(newLocation);
-		// 1.当剪切至自己的父目录时,不响应操作
 		if(oldFile.getParent().equals(newLocation) && delete_after_copy){
 			return;
 		}
-		//2.文件夹不能复制/剪切到自己或子目录
 		if(newLocation.contains(oldLocation)){
 			if(delete_after_copy){
 				msg = mContext.getResources().getString(R.string.can_not_paste) + name;
@@ -1235,66 +1232,19 @@ public class EventHandler implements OnClickListener, OnItemLongClickListener{
 					
 				case COPY_TYPE:
 					int len = params.length;
-					ArrayList<String> param = new ArrayList<String>();
-					//如果在同个盘上剪切,则相当于重命名
-					if(delete_after_copy){
-						File old = null;
-						File f = null;
-						if(mMultiSelectData != null && !mMultiSelectData.isEmpty()){
-							param.add(params[0]);
-							for(int i = 1; i < len; i++){
-								old = new File(params[i]);
-								f = new File(params[0] + params[i].substring(params[i].lastIndexOf("/")));
-								if(old.renameTo(f)){
-									RefreshMedia mRMedia = new RefreshMedia(mContext);
-									mRMedia.notifyMediaAdd(f.getAbsolutePath());
-									mRMedia.notifyMediaDelete(old.getAbsolutePath());
-								}else{
-									param.add(params[i]);
-								}
-							}
-						}else{
-							param.add(params[1]);
-							old = new File(params[0]);
-							f = new File(params[1] + params[0].substring(params[0].lastIndexOf("/")));
-							if(old.renameTo(f)){
-								RefreshMedia mRMedia = new RefreshMedia(mContext);
-								mRMedia.notifyMediaAdd(f.getAbsolutePath());
-								mRMedia.notifyMediaDelete(old.getAbsolutePath());
-							}else{
-								param.add(params[0]);
-							}
-						}
-					}else{
-						if(mMultiSelectData != null && !mMultiSelectData.isEmpty()){
-							for(int i = 0; i < len; i++){
-								param.add(params[i]);
-							}
-						}else{
-							param.add(params[1]);
-							param.add(params[0]);
-						}
-					}
 					
-					//判断磁盘空间是否足够
-					long totalSize = 0;
-					StatFs statfs = new StatFs(param.get(0));
-					long availsize	 = statfs.getBlockSize() * ((long)statfs.getAvailableBlocks());
-					for(int i = 1; i < param.size(); i++){
-						FileManager fm = new FileManager(mContext);
-						totalSize += fm.getDirSize(param.get(i));
-					}
-					if(availsize < totalSize){
-						copy_rtn = -2;
-						delete_after_copy = false;
-						return null;
-					}
-					
-					for(int i = 1; i < param.size(); i++) {
-						copy_rtn = mFileMang.copyToDirectory(param.get(i), param.get(0));
+					if(mMultiSelectData != null && !mMultiSelectData.isEmpty()) {
+						for(int i = 1; i < len; i++) {
+							copy_rtn = mFileMang.copyToDirectory(params[i], params[0]);
+							
+							if(delete_after_copy)
+								mFileMang.deleteTarget(params[i]);
+						}
+					} else {
+						copy_rtn = mFileMang.copyToDirectory(params[0], params[1]);
 						
 						if(delete_after_copy)
-							mFileMang.deleteTarget(param.get(i));
+							mFileMang.deleteTarget(params[0]);
 					}
 					
 					delete_after_copy = false;
@@ -1442,14 +1392,11 @@ public class EventHandler implements OnClickListener, OnItemLongClickListener{
 						mMultiSelectData.clear();
 					}
 					
-					if(copy_rtn == 0){
+					if(copy_rtn == 0)
 						Toast.makeText(mContext, R.string.paste_success, 
 											Toast.LENGTH_SHORT).show();
-					}else if(copy_rtn == -2){
-						Toast.makeText(mContext, R.string.not_enough_space, Toast.LENGTH_SHORT).show();
-					}else{
+					else
 						Toast.makeText(mContext, R.string.paste_fail, Toast.LENGTH_SHORT).show();
-					}
 					updateDirectory(mFileMang.getNextDir(mFileMang.getCurrentDir()));
 					pr_dialog.dismiss();
 					mInfoLabel.setText("");
