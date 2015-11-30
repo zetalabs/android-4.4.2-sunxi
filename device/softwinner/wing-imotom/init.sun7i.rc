@@ -1,30 +1,34 @@
 import init.sun7i.usb.rc
 
 on early-init
-    export EXTERNAL_STORAGE /mnt/sdcard
-    mkdir /mnt/sdcard 0000 system system
-    # for backwards compatibility
-    symlink /mnt/sdcard /sdcard
+    # See storage config details at http://source.android.com/tech/storage/
+    mkdir /mnt/sdcard 0700 shell shell
+    mkdir /mnt/extsd 0700 shell shell
+    mkdir /mnt/usbhost 0700 shell shell
 
-    mkdir /mnt/extsd 0000 system system
-    mkdir /mnt/usbhost1 0000 system system
+    symlink /mnt/sdcard /sdcard
+    export EXTERNAL_STORAGE /mnt/sdcard
+
     mkdir /mnt/sata 0775 system system
     mkdir /mnt/usbhost0 0775 system system
     mkdir /mnt/usbhost1 0775 system system
     mkdir /mnt/usbhost2 0775 system system
     mkdir /mnt/usbhost3 0775 system system
+
+    # Support legacy paths
     mount debugfs debugfs /sys/kernel/debug
     mkdir /databk 0700 root  system
     
 on early-fs
-    mount ext4 /dev/block/system /system ro wait noatime nodev barrier=0
+    mount_all /fstab.sun7i
+    setprop ro.crypto.fuse_sdcard true
     insmod  /system/vendor/modules/disp.ko
     insmod  /system/vendor/modules/lcd.ko
-    
+
     insmod  /system/vendor/modules/hdmi.ko
     insmod  /system/vendor/modules/hdcp.ko
-        
-    # insmod mali driver
+
+# insmod mali driver
     #insmod /system/vendor/modules/ump.ko
     insmod /system/vendor/modules/mali.ko
     chmod 777 /dev/ump
@@ -32,31 +36,32 @@ on early-fs
     chown system system /sys/devices/platform/mali-utgard.0/aw_mali_freq/mali_clk
     chown system system /sys/devices/platform/mali-utgard.0/aw_mali_freq/mali_vol
 
+on post-fs-data
+
 on fs
 # try to mount /data
-    wait /dev/block/data
-    mount ext4 /dev/block/data /data wait noatime nosuid nodev barrier=0
-    setupfs /dev/block/data
+    wait /dev/block/by-name/data
+    mount ext4 /dev/block/by-name/data /data wait noatime nosuid nodev barrier=0
+    setupfs /dev/block/by-name/data
     umount /data
-    exec /system/bin/logwrapper /system/bin/e2fsck -y /dev/block/data
-    exec /system/bin/busybox mount -t ext4 -o noatime,nosuid,nodev,barrier=0,journal_checksum,noauto_da_alloc /dev/block/data /data
+    exec /system/bin/logwrapper /system/bin/e2fsck -y /dev/block/by-name/data
+    exec /system/bin/busybox mount -t ext4 -o noatime,nosuid,nodev,barrier=0,journal_checksum,noauto_da_alloc /dev/block/by-name/data /data
 
 # try to mount /cache
-    mount ext4 /dev/block/cache /cache wait noatime nosuid nodev barrier=0
-    setupfs /dev/block/cache
+    mount ext4 /dev/block/by-name/cache /cache wait noatime nosuid nodev barrier=0
+    setupfs /dev/block/by-name/cache
     umount /cache
-    exec /system/bin/logwrapper /system/bin/e2fsck -y /dev/block/cache
-    exec /system/bin/busybox mount -t ext4 -o noatime,nosuid,nodev,barrier=0,journal_checksum,noauto_da_alloc /dev/block/cache /cache
+    exec /system/bin/logwrapper /system/bin/e2fsck -y /dev/block/by-name/cache
+    exec /system/bin/busybox mount -t ext4 -o noatime,nosuid,nodev,barrier=0,journal_checksum,noauto_da_alloc /dev/block/by-name/cache /cache
 
-    format_userdata /dev/block/UDISK WING
+    format_userdata /dev/block/by-name/UDISK WING
     
 #try to format /databk
-    wait /dev/block/databk
-    mount ext4 /dev/block/databk /databk wait noatime nosuid nodev barrier=0
-    setupfs /dev/block/databk
+    wait /dev/block/by-name/databk
+    mount ext4 /dev/block/by-name/databk /databk wait noatime nosuid nodev barrier=0
+    setupfs /dev/block/by-name/databk
     umount /databk
     rmdir /databk
-
 
 on boot
 # use automatic detecttion insmod ctp & gsensor driver
@@ -88,7 +93,7 @@ on boot
 # gpio module
     insmod /system/vendor/modules/gpio_sw.ko
 
-#tvd module
+# tvd module
     insmod /system/vendor/modules/sun7i_tvd.ko
 
 # insmod network
@@ -99,7 +104,7 @@ on boot
     insmod /system/vendor/modules/rtl8150.ko
     insmod /system/vendor/modules/cdc_ether.ko
 
-#realtek bluetooth
+# realtek bluetooth
     chown bluetooth net_bt_stack /data/misc/bluetooth
     mkdir /data/misc/bluedroid 0770 bluetooth net_bt_stack
 
@@ -123,16 +128,22 @@ on boot
 
 # 1. realtek wifi service
 # 1.1 realtek wifi sta service
-service wpa_supplicant /system/bin/wpa_supplicant -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf -e/data/misc/wifi/entropy.bin
+service wpa_supplicant /system/bin/logwrapper /system/bin/wpa_supplicant \
+    -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf \
+    -O/data/misc/wifi/sockets \
+    -e/data/misc/wifi/entropy.bin -g@android:wpa_wlan0
     class main
     socket wpa_wlan0 dgram 660 wifi wifi
     disabled
     oneshot
 
 # 1.2 realtek wifi sta p2p concurrent service
-service p2p_supplicant /system/bin/wpa_supplicant \
-    -ip2p0 -Dnl80211 -c/data/misc/wifi/p2p_supplicant.conf -e/data/misc/wifi/entropy.bin -N \
-    -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf
+service p2p_supplicant /system/bin/logwrapper /system/bin/wpa_supplicant \
+    -ip2p0 -Dnl80211 -c/data/misc/wifi/p2p_supplicant.conf \
+    -e/data/misc/wifi/entropy.bin -N \
+    -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf \
+    -O/data/misc/wifi/sockets \
+    -g@android:wpa_wlan0
     class main
     socket wpa_wlan0 dgram 660 wifi wifi
     disabled

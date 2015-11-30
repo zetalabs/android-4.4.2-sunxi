@@ -1,20 +1,26 @@
-$(call inherit-product, device/softwinner/wing-common/ProductCommon.mk)
+$(call inherit-product, device/softwinner/wing-common/wing-common.mk)
 
+DEVICE_PACKAGE_OVERLAYS := \
+	device/softwinner/wing-imotom/overlay \
+	$(DEVICE_PACKAGE_OVERLAYS)
 
-DEVICE_PACKAGE_OVERLAYS := device/softwinner/wing-imotom/overlay
+# google pinyin
+PRODUCT_PACKAGES += \
+	com.google.android.inputmethod.pinyin \
+	libgnustl_shared.so \
+	libjni_delight.so \
+	libjni_googlepinyinime_5.so \
+	libjni_googlepinyinime_latinime_5.so \
+	libjni_hmm_shared_engine.so
 
 # gps
 BOARD_USES_GPS_TYPE := simulator
 PRODUCT_PACKAGES += \
-    gps.exDroid \
+    gps.wing \
     Bluetooth \
     VibratorTest \
 	CVBS \
 	DVD
-
-# drm
-PRODUCT_PROPERTY_OVERRIDES += \
-	drm.service.enabled=true
 
 # for recovery
 PRODUCT_COPY_FILES += \
@@ -53,7 +59,6 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.camera.xml:system/etc/permissions/android.hardware.camera.xml   \
     frameworks/native/data/etc/android.hardware.camera.front.xml:system/etc/permissions/android.hardware.camera.front.xml \
-#    frameworks/native/data/etc/android.hardware.camera.autofocus.xml:system/etc/permissions/android.hardware.camera.autofocus.xml \
     frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml
 
 PRODUCT_COPY_FILES += \
@@ -108,6 +113,40 @@ PRODUCT_COPY_FILES += \
 #   hardware/broadcom/wlan/firmware/ap6210/nvram_ap6210.txt:system/vendor/modules/nvram_ap6210.txt \
 #   hardware/broadcom/wlan/firmware/ap6210/bcm20710a1.hcd:system/vendor/modules/bcm20710a1.hcd
 
+# 3G Data Card Packages
+PRODUCT_PACKAGES += \
+    u3gmonitor \
+    chat \
+    rild \
+    pppd
+
+# 3G Data Card Configuration Flie
+PRODUCT_COPY_FILES += \
+    device/softwinner/wing-common/rild/ip-down:system/etc/ppp/ip-down \
+    device/softwinner/wing-common/rild/ip-up:system/etc/ppp/ip-up \
+    device/softwinner/wing-common/rild/3g_dongle.cfg:system/etc/3g_dongle.cfg \
+    device/softwinner/wing-common/rild/usb_modeswitch:system/bin/usb_modeswitch \
+    device/softwinner/wing-common/rild/call-pppd:system/xbin/call-pppd \
+    device/softwinner/wing-common/rild/usb_modeswitch.sh:system/xbin/usb_modeswitch.sh \
+    device/softwinner/wing-common/rild/apns-conf_sdk.xml:system/etc/apns-conf.xml \
+    device/softwinner/wing-common/rild/libsoftwinner-ril-4.4.so:system/lib/libsoftwinner-ril-4.4.so
+
+# 3G Data Card usb modeswitch File
+PRODUCT_COPY_FILES += \
+    $(call find-copy-subdir-files,*,device/softwinner/wing-common/rild/usb_modeswitch.d,system/etc/usb_modeswitch.d)
+
+# 3G 
+PRODUCT_PROPERTY_OVERRIDES += \
+    rild.libargs=-d/dev/ttyUSB2 \
+    rild.libpath=libsoftwinner-ril-4.4.so
+    
+PRODUCT_COPY_FILES += \
+    device/softwinner/wing-k70/initlogo.rle:root/initlogo.rle \
+    device/softwinner/wing-k70/media/bootanimation.zip:system/media/bootanimation.zip \
+    device/softwinner/wing-k70/media/boot.wav:system/media/boot.wav \
+    device/softwinner/wing-k70/media/bootlogo.bmp:system/media/bootlogo.bmp \
+    device/softwinner/wing-k70/media/initlogo.bmp:system/media/initlogo.bmp
+
 # When set ro.sys.adaptive_memory=1, firmware can adaptive different dram size.
 # And dalvik vm parameters configuration will become invalid.
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -115,12 +154,17 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # dalvik vm parameters
 PRODUCT_PROPERTY_OVERRIDES += \
-    dalvik.vm.heapsize=256m \
+    dalvik.vm.heapsize=384m \
     dalvik.vm.heapstartsize=8m \
     dalvik.vm.heapgrowthlimit=96m \
     dalvik.vm.heaptargetutilization=0.75 \
     dalvik.vm.heapminfree=2m \
-    dalvik.vm.heapmaxfree=8m
+    dalvik.vm.heapmaxfree=8m \
+    ro.zygote.disable_gl_preload=true
+
+# drm
+PRODUCT_PROPERTY_OVERRIDES += \
+	drm.service.enabled=false
 
 # usb
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -128,15 +172,15 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.udisk.lable=WING \
     ro.debuggable=1 
 
-
 # ui
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.property.tabletUI=false \
     ro.sf.lcd_density=120 \
-     ro.property.fontScale=1.10
+    ro.property.fontScale=1.10 \
+    debug.hwui.render_dirty_regions=false
 
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.product.firmware=v3.0.1
+    ro.product.firmware=v4.4
 
 # function
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -152,7 +196,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 $(call inherit-product-if-exists, device/softwinner/wing-imotom/modules/modules.mk)
 include device/softwinner/wing-common/prebuild/google/products/gms.mk
-include device/softwinner/wing-common/prebuild/framework_aw/framework_aw.mk
+#include device/softwinner/wing-common/prebuild/framework_aw/framework_aw.mk
 
 # Overrides
 PRODUCT_CHARACTERISTICS := tablet
