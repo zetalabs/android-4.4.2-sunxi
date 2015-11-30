@@ -1,0 +1,2 @@
+allow vold mount_exec:file x_file_perms;
+
