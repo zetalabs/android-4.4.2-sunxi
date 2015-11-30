@@ -15,17 +15,24 @@
 
 LOCAL_PATH := $(call my-dir)
 
-# HAL module implemenation, not prelinked and stored in
+# HAL module implemenation stored in
 # hw/<OVERLAY_HARDWARE_MODULE_ID>.<ro.product.board>.so
 include $(CLEAR_VARS)
-LOCAL_MODULE_TAGS := optional
-LOCAL_PRELINK_MODULE := false
-
-LOCAL_C_INCLUDES += $(LOCAL_PATH) \
-	$(TARGET_HARDWARE_INCLUDE)
 
 LOCAL_MODULE_PATH := $(TARGET_OUT_SHARED_LIBRARIES)/hw
-LOCAL_SHARED_LIBRARIES := liblog libcutils
-LOCAL_SRC_FILES := display.cpp
-LOCAL_MODULE := display.sun7i
+LOCAL_SHARED_LIBRARIES := liblog libEGL
+LOCAL_SRC_FILES := hwc.cpp \
+									 hwc_sunxi.cpp \
+									 hwc_others.cpp \
+									 hal.cpp
+LOCAL_SHARED_LIBRARIES := \
+	libutils \
+	libEGL \
+	libGLESv1_CM \
+	liblog \
+	libcutils
+LOCAL_C_INCLUDES += $(TARGET_HARDWARE_INCLUDE)
+LOCAL_MODULE := hwcomposer.$(TARGET_BOARD_PLATFORM)
+LOCAL_CFLAGS:= -DLOG_TAG=\"hwcomposer\"
+LOCAL_MODULE_TAGS := optional
 include $(BUILD_SHARED_LIBRARY)
