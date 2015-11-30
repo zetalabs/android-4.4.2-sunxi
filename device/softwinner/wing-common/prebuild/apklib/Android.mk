@@ -14,44 +14,137 @@
 
 LOCAL_PATH := $(call my-dir)
 
-#########################
+# --------------------------------------
+# google pinyin
 
 include $(CLEAR_VARS)
-LOCAL_MODULE := libjni_eglfence_awgallery.so
+LOCAL_MODULE := libgnustl_shared.so
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_PATH := $(TARGET_OUT)/lib
 LOCAL_SRC_FILES := $(LOCAL_MODULE)
 LOCAL_MODULE_CLASS := lib
 include $(BUILD_PREBUILT)
 
-#######################
-
 include $(CLEAR_VARS)
-LOCAL_MODULE := libjni_mosaic.so
+LOCAL_MODULE := libjni_delight.so
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_PATH := $(TARGET_OUT)/lib
 LOCAL_SRC_FILES := $(LOCAL_MODULE)
 LOCAL_MODULE_CLASS := lib
 include $(BUILD_PREBUILT)
 
-#######################
-
 include $(CLEAR_VARS)
-LOCAL_MODULE_TAGS := eng optional
-LOCAL_PREBUILT_LIBS := libcheckfile.so
-include $(BUILD_MULTI_PREBUILT)
-
-#########################################
-# GooglePinyin
-#########################################
-include $(CLEAR_VARS)
-
-LOCAL_PREBUILT_LIBS := libjni_hmm_shared_engine.so \
-	libjni_googlepinyinime_latinime_5.so \
-	libjni_googlepinyinime_5.so \
-	libjni_delight.so \
-	libgnustl_shared.so
-
+LOCAL_MODULE := libjni_googlepinyinime_5.so
 LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_PATH := $(TARGET_OUT)/lib
+LOCAL_SRC_FILES := $(LOCAL_MODULE)
+LOCAL_MODULE_CLASS := lib
+include $(BUILD_PREBUILT)
 
-include $(BUILD_MULTI_PREBUILT)
+include $(CLEAR_VARS)
+LOCAL_MODULE := libjni_googlepinyinime_latinime_5.so
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_PATH := $(TARGET_OUT)/lib
+LOCAL_SRC_FILES := $(LOCAL_MODULE)
+LOCAL_MODULE_CLASS := lib
+include $(BUILD_PREBUILT)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libjni_hmm_shared_engine.so
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_PATH := $(TARGET_OUT)/lib
+LOCAL_SRC_FILES := $(LOCAL_MODULE)
+LOCAL_MODULE_CLASS := lib
+include $(BUILD_PREBUILT)
+
+# --------------------------------------
+# baidu video
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libAudiofe_V1.so
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_PATH := $(TARGET_OUT)/lib
+LOCAL_SRC_FILES := $(LOCAL_MODULE)
+LOCAL_MODULE_CLASS := lib
+include $(BUILD_PREBUILT)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libcyberplayer.so
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_PATH := $(TARGET_OUT)/lib
+LOCAL_SRC_FILES := $(LOCAL_MODULE)
+LOCAL_MODULE_CLASS := lib
+include $(BUILD_PREBUILT)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libffmpeg.so
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_PATH := $(TARGET_OUT)/lib
+LOCAL_SRC_FILES := $(LOCAL_MODULE)
+LOCAL_MODULE_CLASS := lib
+include $(BUILD_PREBUILT)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libgetcpuspec.so
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_PATH := $(TARGET_OUT)/lib
+LOCAL_SRC_FILES := $(LOCAL_MODULE)
+LOCAL_MODULE_CLASS := lib
+include $(BUILD_PREBUILT)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libp2p-jni.so
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_PATH := $(TARGET_OUT)/lib
+LOCAL_SRC_FILES := $(LOCAL_MODULE)
+LOCAL_MODULE_CLASS := lib
+include $(BUILD_PREBUILT)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libstlport_shared.so
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_PATH := $(TARGET_OUT)/lib
+LOCAL_SRC_FILES := $(LOCAL_MODULE)
+LOCAL_MODULE_CLASS := lib
+include $(BUILD_PREBUILT)
+
+# --------------------------------------
+# GTalk
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libvideochat_jni.so
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_PATH := $(TARGET_OUT)/lib
+LOCAL_SRC_FILES := $(LOCAL_MODULE)
+LOCAL_MODULE_CLASS := lib
+include $(BUILD_PREBUILT)
+
+# --------------------------------------
+# Google Earth
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libearthandroid.so
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_PATH := $(TARGET_OUT)/lib
+LOCAL_SRC_FILES := $(LOCAL_MODULE)
+LOCAL_MODULE_CLASS := lib
+include $(BUILD_PREBUILT)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libearthmobile.so
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_PATH := $(TARGET_OUT)/lib
+LOCAL_SRC_FILES := $(LOCAL_MODULE)
+LOCAL_MODULE_CLASS := lib
+include $(BUILD_PREBUILT)
+
+# --------------------------------------
+# Google Chrome
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libchromeview.so
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_PATH := $(TARGET_OUT)/lib
+LOCAL_SRC_FILES := $(LOCAL_MODULE)
+LOCAL_MODULE_CLASS := lib
+include $(BUILD_PREBUILT)
