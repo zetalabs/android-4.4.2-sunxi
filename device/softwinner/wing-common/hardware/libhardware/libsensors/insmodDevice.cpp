@@ -81,7 +81,7 @@ static char * get_module_name(char * buf)
                 ALOGD("the buf is null !");
                 return NULL;
         }
-        memset(&name,0,sizeof(name));
+        memset(name,0,sizeof(name));
         position1 = strchr(buf,ch);
         position2 = strrchr(buf,ch);
         s1 = position1 - buf + 1;
@@ -110,7 +110,7 @@ static int insmod_modules(char * buf)
         char * module_name;
         char insmod_name[128];
         char ko[] = ".ko";
-        memset(&insmod_name,0,sizeof(insmod_name));
+        memset(insmod_name,0,sizeof(insmod_name));
         
         module_name = get_module_name(buf);
 #ifdef DEBUG
@@ -147,7 +147,7 @@ static int get_cfg(void)
         FILE *fp;
         int ret = 1;
         char buf[LINE_LENGTH] = {0};
-        memset(&buf,0,sizeof(buf));
+        memset(buf,0,sizeof(buf));
         if((fp = fopen(I2C_DEVICE_CONFIG_PATH,"rb")) == NULL) {
                 ALOGD("can't not open file!\n");
                 return 0;
@@ -164,7 +164,7 @@ static int get_cfg(void)
                                 ret = 0;
                         }
                 } 
-                memset(&buf,0,sizeof(buf));
+                memset(buf,0,sizeof(buf));
         }  
           
         fclose(fp);

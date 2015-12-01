@@ -45,14 +45,14 @@ on fs
     setupfs /dev/block/by-name/data
     umount /data
     exec /system/bin/logwrapper /system/bin/e2fsck -y /dev/block/by-name/data
-    exec /system/bin/busybox mount -t ext4 -o noatime,nosuid,nodev,barrier=0,journal_checksum,noauto_da_alloc /dev/block/by-name/data /data
+    exec /system/bin/busybox-smp mount -t ext4 -o noatime,nosuid,nodev,barrier=0,journal_checksum,noauto_da_alloc /dev/block/by-name/data /data
 
 # try to mount /cache
     mount ext4 /dev/block/by-name/cache /cache wait noatime nosuid nodev barrier=0
     setupfs /dev/block/by-name/cache
     umount /cache
     exec /system/bin/logwrapper /system/bin/e2fsck -y /dev/block/by-name/cache
-    exec /system/bin/busybox mount -t ext4 -o noatime,nosuid,nodev,barrier=0,journal_checksum,noauto_da_alloc /dev/block/by-name/cache /cache
+    exec /system/bin/busybox-smp mount -t ext4 -o noatime,nosuid,nodev,barrier=0,journal_checksum,noauto_da_alloc /dev/block/by-name/cache /cache
 
     format_userdata /dev/block/by-name/UDISK WING
     
