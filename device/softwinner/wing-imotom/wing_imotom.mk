@@ -140,11 +140,11 @@ PRODUCT_PROPERTY_OVERRIDES += \
     rild.libpath=libsoftwinner-ril-4.4.so
     
 PRODUCT_COPY_FILES += \
-    device/softwinner/wing-k70/initlogo.rle:root/initlogo.rle \
-    device/softwinner/wing-k70/media/bootanimation.zip:system/media/bootanimation.zip \
-    device/softwinner/wing-k70/media/boot.wav:system/media/boot.wav \
-    device/softwinner/wing-k70/media/bootlogo.bmp:system/media/bootlogo.bmp \
-    device/softwinner/wing-k70/media/initlogo.bmp:system/media/initlogo.bmp
+    device/softwinner/wing-imotom/initlogo.rle:root/initlogo.rle \
+    device/softwinner/wing-imotom/media/bootanimation.zip:system/media/bootanimation.zip \
+    device/softwinner/wing-imotom/media/boot.wav:system/media/boot.wav \
+    device/softwinner/wing-imotom/media/bootlogo.bmp:system/media/bootlogo.bmp \
+    device/softwinner/wing-imotom/media/initlogo.bmp:system/media/initlogo.bmp
 
 # When set ro.sys.adaptive_memory=1, firmware can adaptive different dram size.
 # And dalvik vm parameters configuration will become invalid.
