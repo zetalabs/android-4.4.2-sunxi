@@ -81,15 +81,14 @@ PRODUCT_COPY_FILES += \
 
 # rtl8723au bt + wifi
 PRODUCT_COPY_FILES += \
-	device/softwinner/common/hardware/realtek/bluetooth/firmware/rtl8723au/rtk8723_bt_config:system/etc/firmware/rtk8723_bt_config \
-	device/softwinner/common/hardware/realtek/bluetooth/firmware/rtl8723au/rtk8723a:system/etc/firmware/rtk8723a \
-	device/softwinner/common/hardware/realtek/bluetooth/firmware/rtl8723au/rtk_btusb.ko:system/vendor/modules/rtk_btusb.ko
-
+	device/softwinner/wing-common/hardware/realtek/bluetooth/firmware/rtl8723au/rtl8723a_config:system/etc/firmware/rtl8723a_config \
+	device/softwinner/wing-common/hardware/realtek/bluetooth/firmware/rtl8723au/rtl8723a_fw:system/etc/firmware/rtl8723a_fw \
+	device/softwinner/wing-common/hardware/realtek/bluetooth/firmware/rtl8723au/rtk_btusb.ko:system/vendor/modules/rtk_btusb.ko
 
 # rtl8723as bt fw and config
 #PRODUCT_COPY_FILES += \
-#   device/softwinner/wing-common/hardware/realtek/bluetooth/rtl8723as/rlt8723a_chip_b_cut_bt40_fw.bin:system/etc/rlt8723a_chip_b_cut_bt40_fw.bin \
-#   device/softwinner/wing-common/hardware/realtek/bluetooth/rtl8723as/rtk8723_bt_config:system/etc/rtk8723_bt_config
+#   device/softwinner/wing-common/hardware/realtek/bluetooth/rtl8723as/rlt8723a_fw:system/etc/rlt8723a_fw \
+#   device/softwinner/wing-common/hardware/realtek/bluetooth/rtl8723as/rtk8723a_config:system/etc/rtk8723a_config
 
 # bcm40181 sdio wifi fw and nvram
 #PRODUCT_COPY_FILES += \
