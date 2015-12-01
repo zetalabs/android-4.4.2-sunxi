@@ -73,6 +73,12 @@ typedef struct
 
     int                 hdmi_hpd;
     int                 hdmi_hpd_active;
+    int                 tv_hpd;
+    int                 tv_hpd_active;
+    __disp_tv_mode_t    tv_mode;
+    int                 vga_hpd;
+    int                 vga_hpd_active;
+    __disp_vga_mode_t   vga_mode;
 
     int                 force_sgx[2];
     int                 use_fb[2];

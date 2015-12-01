@@ -193,7 +193,7 @@ int hwc_prepare(hwc_composer_device_1_t *dev, size_t numDisplays,
 
         if(disp == 1)
         {
-            if(!ctx->hdmi_hpd)
+            if(!ctx->hdmi_hpd && !ctx->tv_hpd && !ctx->vga_hpd)
             {
             	ALOGV("ctx->hdmi_hpd is NULL");
                 continue;
@@ -506,7 +506,8 @@ static int hwc_getDisplayConfigs(struct hwc_composer_device_1 *dev,
 	}
 	else if(disp == HWC_DISPLAY_EXTERNAL)
 	{
-	    if(ctx->hdmi_hpd)
+	    if(ctx->hdmi_hpd || ctx->tv_hpd || ctx->vga_hpd)
+
 	    {
 	    //ALOGD("hwc_getDisplayConfigs HWC_DISPLAY_EXTERNAL");
         	if(numConfigs)

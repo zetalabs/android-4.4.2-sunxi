@@ -34,6 +34,8 @@ static int _hwcdev_is_valid_format(int format)
     case HAL_PIXEL_FORMAT_RGB_888:
     case HAL_PIXEL_FORMAT_RGB_565:
     case HAL_PIXEL_FORMAT_BGRA_8888:
+    case HAL_PIXEL_FORMAT_RGBA_5551:
+    case HAL_PIXEL_FORMAT_RGBA_4444:
     case HAL_PIXEL_FORMAT_sRGB_A_8888:
     case HAL_PIXEL_FORMAT_sRGB_X_8888:
     case HAL_PIXEL_FORMAT_YV12:
@@ -363,6 +365,18 @@ static int _hwcdev_setup_layer(SUNXI_hwcdev_context_t *ctx, __disp_layer_info_t 
             layer_info->fb.seq = DISP_SEQ_ARGB;
             layer_info->fb.br_swap = 0;
             break;
+        case HAL_PIXEL_FORMAT_RGBA_5551:
+            layer_info->fb.mode = DISP_MOD_INTERLEAVED;
+            layer_info->fb.format = DISP_FORMAT_ARGB1555;
+            layer_info->fb.seq = DISP_SEQ_ARGB;
+            layer_info->fb.br_swap = 1;
+            break;
+        case HAL_PIXEL_FORMAT_RGBA_4444:
+            layer_info->fb.mode = DISP_MOD_INTERLEAVED;
+            layer_info->fb.format = DISP_FORMAT_ARGB4444;
+            layer_info->fb.seq = DISP_SEQ_ARGB;
+            layer_info->fb.br_swap = 1;
+            break;
         case HAL_PIXEL_FORMAT_YV12:
             layer_info->fb.mode = DISP_MOD_NON_MB_PLANAR;
             layer_info->fb.format = DISP_FORMAT_YUV420;
@@ -683,6 +697,42 @@ SUNXI_hwcdev_context_t* hwcdev_create_device(void)
             ALOGD( "####init hdmi_plug:%d", ctx->hdmi_hpd);
         }
     }
+    sw_fd = open("/sys/class/switch/cvbs/state", O_RDONLY);
+    if (sw_fd)
+    {
+        char val;
+        if (read(sw_fd, &val, 1) == 1 && val == '1')
+        {
+            ctx->tv_hpd = 1;
+            ctx->tv_mode = DISP_TV_MOD_NTSC;
+            ALOGD( "####init cvbs_plug:%d", ctx->tv_hpd);
+        }
+    }
+
+    sw_fd = open("/sys/class/switch/ypbpr/state", O_RDONLY);
+    if (sw_fd)
+    {
+        char val;
+        if (read(sw_fd, &val, 1) == 1 && val == '1')
+        {
+            ctx->tv_hpd = 1;
+            ctx->tv_mode = DISP_TV_MOD_720P_50HZ;
+            ALOGD( "####init ypbpr_plug:%d", ctx->tv_hpd);
+        }
+    }
+
+    sw_fd = open("/sys/class/switch/vga/state", O_RDONLY);
+    if (sw_fd)
+    {
+        char val;
+        if (read(sw_fd, &val, 1) == 1 && val == '1')
+        {
+            ctx->vga_hpd = 1;
+            ctx->vga_mode = DISP_VGA_H1024_V768;
+            ALOGD( "####init vga_plug:%d", ctx->vga_hpd);
+        }
+    }
+
     
     ctx->hint_hdmi_mode = 255;//4;
 

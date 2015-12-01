@@ -244,6 +244,99 @@ static int hwc_hdmi_switch(void)
     return 0;
 }
 
+static int hwc_tv_switch(int tv_hpd)
+{
+    SUNXI_hwcdev_context_t *ctx = &gSunxiHwcDevice;
+
+    if(ctx->psHwcProcs && ctx->psHwcProcs->hotplug)    {
+        unsigned long arg[4]={0};
+
+        if(tv_hpd)
+        {
+            __disp_tv_mode_t tv_mode = ctx->tv_mode;
+
+            ctx->display_width[1] = get_width_from_mode(tv_mode);
+            ctx->display_height[1] = get_height_from_mode(tv_mode);
+            ctx->out_type[1] = DISP_OUTPUT_TYPE_TV;
+            ctx->out_mode[1] = tv_mode;
+
+            ctx->display_width[1] = get_valid_width_from_mode(tv_mode);
+            ctx->display_height[1] = get_valid_height_from_mode(tv_mode);
+
+            arg[0] = 1;
+            arg[1] = tv_mode;
+            ioctl(ctx->disp_fp, DISP_CMD_TV_SET_MODE, (unsigned long)arg);
+
+            arg[0] = 1;
+            ioctl(ctx->disp_fp, DISP_CMD_TV_ON, (unsigned long)arg);
+
+            ALOGD( "####tv plug in, out_type:%d, out_mode:%d", ctx->out_type[1],ctx->out_mode[1]);
+        }
+        else
+        {
+            arg[0] = 1;
+            ioctl(ctx->disp_fp, DISP_CMD_TV_OFF, (unsigned long)arg);
+            ALOGD( "####tv plug out");
+        }
+
+        ctx->psHwcProcs->hotplug(ctx->psHwcProcs, HWC_DISPLAY_EXTERNAL, tv_hpd);
+
+        ctx->tv_hpd_active = tv_hpd;
+
+        return 1;
+    }
+
+    return 0;
+}
+
+static int hwc_vga_switch(int vga_hpd)
+{
+    SUNXI_hwcdev_context_t *ctx = &gSunxiHwcDevice;
+
+    if(ctx->psHwcProcs && ctx->psHwcProcs->hotplug)
+    {
+        unsigned long arg[4]={0};
+
+        if(vga_hpd)
+        {
+            __disp_vga_mode_t vga_mode = ctx->vga_mode;
+
+            ctx->display_width[1] = get_width_from_mode(vga_mode);
+            ctx->display_height[1] = get_height_from_mode(vga_mode);
+            ctx->out_type[1] = DISP_OUTPUT_TYPE_VGA;
+            ctx->out_mode[1] = vga_mode;
+
+            //ctx->hdmi_valid_width = get_valid_width_from_mode(tv_mode);
+            //ctx->hdmi_valid_height = get_valid_height_from_mode(tv_mode);
+
+            arg[0] = 1;
+            arg[1] = vga_mode;
+            ioctl(ctx->disp_fp, DISP_CMD_VGA_SET_MODE, (unsigned long)arg);
+
+            arg[0] = 1;
+            ioctl(ctx->disp_fp, DISP_CMD_VGA_ON, (unsigned long)arg);
+
+            ALOGD( "####vga plug in, out_type:%d, out_mode:%d", ctx->out_type[1],ctx->out_mode[1]);
+        }
+        else
+        {
+            arg[0] = 1;
+            ioctl(ctx->disp_fp, DISP_CMD_VGA_OFF, (unsigned long)arg);
+            ALOGD( "####vga plug out");
+        }
+
+        ctx->psHwcProcs->hotplug(ctx->psHwcProcs, HWC_DISPLAY_EXTERNAL, vga_hpd);
+
+        ctx->vga_hpd_active = vga_hpd;
+
+        return 1;
+    }
+
+    return 0;
+}
+
+
+
 static int hwc_uevent(void)
 {
 	struct sockaddr_nl snl;
@@ -306,18 +399,33 @@ static int hwc_uevent(void)
             hwc_hdmi_switch();
         }
 
+        if((ctx->tv_hpd_active != ctx->tv_hpd)&&(!ctx->hdmi_hpd_active))
+        {
+            hwc_tv_switch(ctx->tv_hpd);
+        }
+
+        if((ctx->vga_hpd_active != ctx->vga_hpd)&&(!ctx->hdmi_hpd_active))
+        {
+            hwc_vga_switch(ctx->vga_hpd);
+        }
+
         if(err > 0 && fds.revents == POLLIN)
         {
     		int count = recv(hotplug_sock, &buf, sizeof(buf),0);
     		if(count > 0)
     		{
-    		    int IsVsync, IsHdmi;
+                int IsVsync, IsHdmi, IsYpbpr, IsCvbs, IsVga;
+
     		    
         		ALOGV("####received %s", buf);
 
                 IsVsync = !strcmp(buf, "change@/devices/platform/disp");
                 IsHdmi = !strcmp(buf, "change@/devices/virtual/switch/hdmi");
                 
+                IsYpbpr = !strcmp(buf,"change@/devices/virtual/switch/ypbpr");
+                IsCvbs = !strcmp(buf,"change@/devices/virtual/switch/cvbs");
+                IsVga = !strcmp(buf,"change@/devices/virtual/switch/vga");
+
                 if(IsVsync && ctx->vsync_en)
                 {
                     uint64_t timestamp = 0;
@@ -373,9 +481,106 @@ static int hwc_uevent(void)
                             {
                                 ctx->hdmi_hpd = new_hdmi_hpd;
                                 ALOGD( "####hdmi_hpd:%d", ctx->hdmi_hpd);
-                                hwc_hdmi_switch();
+                                if(ctx->hdmi_hpd)
+                                {
+                                    if(ctx->tv_hpd_active)
+                                    {
+                                        hwc_tv_switch(0);
+                                    }
+                                    else if(ctx->vga_hpd_active)
+                                    {
+                                        hwc_vga_switch(0);
+                                    }
+                                    hwc_hdmi_switch();
+                                }
+                                else
+                                {
+                                    hwc_hdmi_switch();
+                                    if(ctx->tv_hpd)
+                                    {
+                                        hwc_tv_switch(1);
+                                    }
+                                    else if(ctx->vga_hpd)
+                                    {
+                                        hwc_vga_switch(1);
+                                    }
+                                }
                             }
                         }
+
+                        s += strlen(s) + 1;
+                        if(s - buf >= count)
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                if(IsCvbs||IsYpbpr)
+                {
+                    const char *s = buf;
+                    int new_tv_hpd = 0;
+
+                    ALOGV("####received %s", buf);
+
+                    s += strlen(s) + 1;
+                    while(s)
+                    {
+                        if (!strncmp(s, "SWITCH_STATE=", strlen("SWITCH_STATE=")))
+                        {
+                            new_tv_hpd = strtoull(s + strlen("SWITCH_STATE="), NULL, 0);
+                            if(new_tv_hpd != ctx->tv_hpd)
+                            {
+                                ctx->tv_hpd = new_tv_hpd;
+                                ALOGD( "####tv_hpd:%d", ctx->tv_hpd);
+                                if(IsCvbs)
+                                {
+                                    ctx->tv_mode = DISP_TV_MOD_NTSC;
+                                }
+                                if(IsYpbpr)
+                                {
+                                    ctx->tv_mode = DISP_TV_MOD_720P_50HZ;
+                                }
+                                if(!ctx->hdmi_hpd_active)
+                                {
+                                    hwc_tv_switch(ctx->tv_hpd);
+                                }
+                            }
+                        }
+
+                        s += strlen(s) + 1;
+                        if(s - buf >= count)
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                if(IsVga)
+                {
+                    const char *s = buf;
+                    int new_vga_hpd = 0;
+
+                    ALOGV("####received %s", buf);
+
+                    s += strlen(s) + 1;
+                    while(s)
+                    {
+                        if (!strncmp(s, "SWITCH_STATE=", strlen("SWITCH_STATE=")))
+                        {
+                            new_vga_hpd = strtoull(s + strlen("SWITCH_STATE="), NULL, 0);
+                            if(new_vga_hpd != ctx->vga_hpd)
+                            {
+                                ctx->vga_hpd = new_vga_hpd;
+                                ctx->vga_mode = DISP_VGA_H1024_V768;
+                                ALOGD( "####vga_hpd:%d", ctx->vga_hpd);
+                                if(!ctx->hdmi_hpd_active)
+                                {
+                                    hwc_vga_switch(ctx->vga_hpd);
+                                }
+                            }
+                        }
+
                         
                         s += strlen(s) + 1;
                         if(s - buf >= count)
