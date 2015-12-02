@@ -401,8 +401,6 @@ on boot
     chown system system /sys/fs/selinux/load
     chown system system /sys/fs/selinux/enforce
 
-    chmod 0777 /system/bin/updatesoftwinner
-
 # Define TCP buffer sizes for various networks
 #   ReadMin, ReadInitial, ReadMax, WriteMin, WriteInitial, WriteMax,
     setprop net.tcp.buffersize.default 4096,87380,110208,4096,16384,110208
@@ -416,9 +414,6 @@ on boot
     setprop net.tcp.buffersize.edge    4093,26280,35040,4096,16384,35040
     setprop net.tcp.buffersize.gprs    4092,8760,11680,4096,8760,11680
     setprop net.tcp.buffersize.evdo    4094,87380,262144,4096,16384,262144
-
-# Set this property so surfaceflinger is not started by system_init
-    setprop system_init.startsurfaceflinger 0
 
     class_start core
     class_start main
@@ -628,10 +623,10 @@ service u3gmonitor /system/bin/u3gmonitor
     group root
     oneshot
 
-service tvdecoderserver /system/bin/tvdecoderserver
-    class main
-    user system
-    group graphics
+#service tvdecoderserver /system/bin/tvdecoderserver
+#    class main
+#    user system
+#    group graphics
 
 service preinstall /sbin/busybox sh /system/bin/preinstall.sh
     user root
@@ -642,7 +637,7 @@ service preinstall /sbin/busybox sh /system/bin/preinstall.sh
 on property:sys.boot_completed=1
     start preinstall
 
-service dhcpcd_wlan0 /system/bin/dhcpcd -aABDKL
+service dhcpcd_wlan0 /system/bin/dhcpcd -aABKL
     class main
     disabled
     oneshot
@@ -652,12 +647,12 @@ service dhcpcd_p2p /system/bin/dhcpcd -aABKL
     disabled
     oneshot
 
-service dhcpcd_eth0 /system/bin/dhcpcd -ABDKL
+service dhcpcd_bnep0 /system/bin/dhcpcd -ABKL
     class main
     disabled
     oneshot
 
-service dhcpcd_bnep0 /system/bin/dhcpcd -ABKL
+service dhcpcd_eth /system/bin/dhcpcd -ABKL
     class main
     disabled
     oneshot

@@ -1,6 +1,6 @@
 import init.sun7i.usb.rc
 
-on early-init
+on init
     # See storage config details at http://source.android.com/tech/storage/
     mkdir /mnt/sdcard 0700 shell shell
     mkdir /mnt/extsd 0700 shell shell
