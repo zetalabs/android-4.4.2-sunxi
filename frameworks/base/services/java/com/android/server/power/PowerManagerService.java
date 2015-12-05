@@ -1608,6 +1608,9 @@ public final class PowerManagerService extends IPowerManager.Stub
         if (mUserActivityTimeoutOverrideFromWindowManager >= 0) {
             timeout = (int)Math.min(timeout, mUserActivityTimeoutOverrideFromWindowManager);
         }
+        if (mScreenOffTimeoutSetting < 0) {
+            return mMaximumScreenOffTimeoutFromDeviceAdmin;
+        }
         return Math.max(timeout, MINIMUM_SCREEN_OFF_TIMEOUT);
     }
 

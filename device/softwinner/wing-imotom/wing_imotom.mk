@@ -83,7 +83,7 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
 	device/softwinner/wing-common/hardware/realtek/bluetooth/firmware/rtl8723au/rtl8723a_config:system/etc/firmware/rtl8723a_config \
 	device/softwinner/wing-common/hardware/realtek/bluetooth/firmware/rtl8723au/rtl8723a_fw:system/etc/firmware/rtl8723a_fw \
-	device/softwinner/wing-common/hardware/realtek/bluetooth/firmware/rtl8723au/rtk_btusb.ko:system/vendor/modules/rtk_btusb.ko
+#	device/softwinner/wing-common/hardware/realtek/bluetooth/firmware/rtl8723au/rtk_btusb.ko:system/vendor/modules/rtk_btusb.ko
 
 # rtl8723as bt fw and config
 #PRODUCT_COPY_FILES += \
