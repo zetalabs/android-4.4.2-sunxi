@@ -189,7 +189,9 @@ public class KeyguardViewMediator {
     /**
      * External apps (like the phone app) can tell us to disable the keygaurd.
      */
-    private boolean mExternallyEnabled = true;
+    // FIXME: hue change to false
+    //private boolean mExternallyEnabled = true;
+    private boolean mExternallyEnabled = false;
 
     /**
      * Remember if an external call to {@link #setKeyguardEnabled} with value
@@ -904,7 +906,8 @@ public class KeyguardViewMediator {
         }
 
         if (DEBUG) Log.d(TAG, "doKeyguard: showing the lock screen");
-        showLocked(options);
+        // FIXME: hue remove showLocked()
+        //showLocked(options);
     }
 
     /**

@@ -63,10 +63,10 @@ PRODUCT_COPY_FILES += \
 
 PRODUCT_COPY_FILES += \
     device/softwinner/wing-imotom/initlogo.rle:root/initlogo.rle \
-    device/softwinner/wing-imotom/media/boot.wav:system/media/boot.wav
-    #device/softwinner/wing-imotom/media/bootanimation.zip:system/media/bootanimation.zip \  
-    #device/softwinner/wing-imotom/media/bootlogo.bmp:system/media/bootlogo.bmp \
-    #device/softwinner/wing-imotom/media/initlogo.bmp:system/media/initlogo.bmp 
+    device/softwinner/wing-imotom/media/boot.wav:system/media/boot.wav \
+    device/softwinner/wing-imotom/media/bootanimation.zip:system/media/bootanimation.zip \
+    device/softwinner/wing-imotom/media/bootlogo.bmp:system/media/bootlogo.bmp \
+    device/softwinner/wing-imotom/media/initlogo.bmp:system/media/initlogo.bmp
 
 PRODUCT_COPY_FILES += \
     device/softwinner/wing-imotom/vold.fstab:system/etc/vold.fstab
