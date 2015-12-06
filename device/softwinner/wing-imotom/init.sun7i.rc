@@ -2,20 +2,25 @@ import init.sun7i.usb.rc
 
 on init
     # See storage config details at http://source.android.com/tech/storage/
-    mkdir /mnt/sdcard 0700 shell shell
-    mkdir /mnt/extsd 0700 shell shell
-    mkdir /mnt/usbhost 0700 shell shell
+    mkdir /mnt/shell/emulated 0700 shell shell
+    mkdir /storage/emulated 0555 root root
 
-    symlink /mnt/sdcard /sdcard
-    export EXTERNAL_STORAGE /mnt/sdcard
+    #mkdir /mnt/extsd 0700 shell shell
+    #mkdir /mnt/usbhost 0700 shell shell
+    mkdir /mnt/extsd 0700 media_rw media_rw
+    mkdir /storage/extsd 0700 root root
+    mkdir /mnt/usbhost 0700 media_rw media_rw
+    mkdir /storage/usbhost 0700 root root
 
-    mkdir /mnt/sata 0775 system system
-    mkdir /mnt/usbhost0 0775 system system
-    mkdir /mnt/usbhost1 0775 system system
-    mkdir /mnt/usbhost2 0775 system system
-    mkdir /mnt/usbhost3 0775 system system
+    export EXTERNAL_STORAGE /storage/emulated/legacy
+    export EMULATED_STORAGE_SOURCE /mnt/shell/emulated
+    export EMULATED_STORAGE_TARGET /storage/emulated
 
     # Support legacy paths
+    symlink /storage/emulated/legacy /sdcard
+    symlink /storage/emulated/legacy /mnt/sdcard
+    symlink /storage/emulated/legacy /storage/sdcard0
+    symlink /mnt/shell/emulated/0 /storage/emulated/legacy
     mount debugfs debugfs /sys/kernel/debug
     mkdir /databk 0700 root  system
     
@@ -37,32 +42,12 @@ on early-fs
     chown system system /sys/devices/platform/mali-utgard.0/aw_mali_freq/mali_vol
 
 on post-fs-data
+    mkdir /data/media 0770 media_rw media_rw
 
 on fs
-# try to mount /data
-    wait /dev/block/by-name/data
-    mount ext4 /dev/block/by-name/data /data wait noatime nosuid nodev barrier=0
-    setupfs /dev/block/by-name/data
-    umount /data
-    exec /system/bin/logwrapper /system/bin/e2fsck -y /dev/block/by-name/data
-    exec /system/bin/busybox-smp mount -t ext4 -o noatime,nosuid,nodev,barrier=0,journal_checksum,noauto_da_alloc /dev/block/by-name/data /data
-
-# try to mount /cache
-    mount ext4 /dev/block/by-name/cache /cache wait noatime nosuid nodev barrier=0
-    setupfs /dev/block/by-name/cache
-    umount /cache
-    exec /system/bin/logwrapper /system/bin/e2fsck -y /dev/block/by-name/cache
-    exec /system/bin/busybox-smp mount -t ext4 -o noatime,nosuid,nodev,barrier=0,journal_checksum,noauto_da_alloc /dev/block/by-name/cache /cache
-
-    format_userdata /dev/block/by-name/UDISK WING
+    # UDISK would be mounted as data partition when multiple user enabled.
+    #format_userdata /dev/block/by-name/UDISK WING
     
-#try to format /databk
-    wait /dev/block/by-name/databk
-    mount ext4 /dev/block/by-name/databk /databk wait noatime nosuid nodev barrier=0
-    setupfs /dev/block/by-name/databk
-    umount /databk
-    rmdir /databk
-
 on boot
 # use automatic detecttion insmod ctp & gsensor driver
     insmod /system/vendor/modules/sw_device.ko
@@ -125,6 +110,18 @@ on boot
     insmod /system/vendor/modules/rtk_btusb.ko
     chmod 0666 /dev/rtk_btusb
     chown bluetooth net_bt_stack /device/rtk_btusb
+
+# virtual sdcard daemon running as media_rw (1023)
+service sdcard /system/bin/sdcard -u 1023 -g 1023 -l /data/media /mnt/shell/emulated
+    class late_start
+
+service fuse_extsd /system/bin/sdcard -u 1023 -g 1023 -w 1023 -d /mnt/extsd /storage/extsd
+    class late_start
+    disabled
+
+service fuse_usbhost /system/bin/sdcard -u 1023 -g 1023 -w 1023 -d /mnt/usbhost /storage/usbhost
+    class late_start
+    disabled
 
 # 1. realtek wifi service
 # 1.1 realtek wifi sta service
