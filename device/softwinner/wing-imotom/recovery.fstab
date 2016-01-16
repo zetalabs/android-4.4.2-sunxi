@@ -1,15 +1,11 @@
-# mount point	fstype		device					device2
-/bootloader     vfat        /dev/block/bootloader
-/env            emmc        /dev/block/env
-/boot			emmc		/dev/block/boot
-/system			ext4		/dev/block/system
-/data			ext4		/dev/block/data
-/misc			emmc		/dev/block/misc
-/recovery		ext4		/dev/block/recovery
-/cache			ext4		/dev/block/cache
-/sdcard			vfat		/dev/block/UDISK
-/extsd			vfat		/dev/block/mmcblk0p1	/dev/block/mmcblk0
-/sata 			auto 		../devices/platform/sw_ahci.0
-/usb0			auto		../devices/platform/sw_hcd_host0
-/usb1			auto		../devices/platform/sw-ehci.1
+/dev/block/by-name/bootloader			/bootloader		vfat		defaults		defaults
+/dev/block/by-name/env				/env			emmc		defaults		defaults
+/dev/block/by-name/boot				/boot			emmc		defaults		defaults
+/dev/block/by-name/system			/system			ext4		defaults		defaults
+/dev/block/by-name/UDISK			/data			ext4		defaults		defaults
+/dev/block/by-name/misc				/misc			emmc		defaults		defaults
+/dev/block/by-name/recovery			/recovery		emmc		defaults		defaults
+/dev/block/by-name/cache			/cache			ext4		defaults		defaults
+/dev/block/mmcblk0p1				/extsd			vfat		defaults		defaults
+/dev/block/mmcblk0				/extsd			vfat		defaults		defaults
 

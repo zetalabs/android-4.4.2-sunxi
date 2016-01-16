@@ -1,17 +1,21 @@
 $(call inherit-product, device/softwinner/wing-common/wing-common.mk)
 
 DEVICE_PACKAGE_OVERLAYS := \
-	device/softwinner/wing-imotom/overlay \
-	$(DEVICE_PACKAGE_OVERLAYS)
+    device/softwinner/wing-imotom/overlay \
+    $(DEVICE_PACKAGE_OVERLAYS)
+
+# Abandon useless system app. Add which module name in apk/Android.mk wing_imotom_app section.
+PRODUCT_PACKAGES += \
+    wing_imotom_app
 
 # google pinyin
 PRODUCT_PACKAGES += \
-	com.google.android.inputmethod.pinyin \
-	libgnustl_shared.so \
-	libjni_delight.so \
-	libjni_googlepinyinime_5.so \
-	libjni_googlepinyinime_latinime_5.so \
-	libjni_hmm_shared_engine.so
+    com.google.android.inputmethod.pinyin \
+    libgnustl_shared.so \
+    libjni_delight.so \
+    libjni_googlepinyinime_5.so \
+    libjni_googlepinyinime_latinime_5.so \
+    libjni_hmm_shared_engine.so
 
 # gps
 BOARD_USES_GPS_TYPE := simulator
@@ -19,8 +23,8 @@ PRODUCT_PACKAGES += \
     gps.wing \
     Bluetooth \
     VibratorTest \
-	CVBS \
-	DVD
+    CVBS \
+    DVD
 
 # for recovery
 PRODUCT_COPY_FILES += \
@@ -39,14 +43,14 @@ PRODUCT_COPY_FILES += \
 
 PRODUCT_COPY_FILES += \
     device/softwinner/wing-imotom/kernel:kernel \
+    device/softwinner/wing-imotom/fstab.sun7i:root/fstab.sun7i \
     device/softwinner/wing-imotom/init.sun7i.rc:root/init.sun7i.rc \
     device/softwinner/wing-imotom/init.recovery.sun7i.rc:root/init.recovery.sun7i.rc \
     device/softwinner/wing-imotom/ueventd.sun7i.rc:root/ueventd.sun7i.rc \
-    device/softwinner/wing-imotom/fstab.sun7i:root/fstab.sun7i \
     device/softwinner/wing-imotom/modules/modules/nand.ko:root/nand.ko
 
 PRODUCT_COPY_FILES += \
-	device/softwinner/wing-imotom/configs/tablet_core_hardware.xml:system/etc/permissions/tablet_core_hardware.xml
+    device/softwinner/wing-imotom/configs/tablet_core_hardware.xml:system/etc/permissions/tablet_core_hardware.xml
 
 PRODUCT_COPY_FILES += \
     device/softwinner/wing-imotom/configs/camera.cfg:system/etc/camera.cfg \
@@ -68,22 +72,19 @@ PRODUCT_COPY_FILES += \
     device/softwinner/wing-imotom/media/bootlogo.bmp:system/media/bootlogo.bmp \
     device/softwinner/wing-imotom/media/initlogo.bmp:system/media/initlogo.bmp
 
-PRODUCT_COPY_FILES += \
-    device/softwinner/wing-imotom/vold.fstab:system/etc/vold.fstab
-
 # wifi & bt config file
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.wifi.xml:system/etc/permissions/android.hardware.wifi.xml \
     frameworks/native/data/etc/android.hardware.wifi.direct.xml:system/etc/permissions/android.hardware.wifi.direct.xml \
     frameworks/native/data/etc/android.hardware.bluetooth.xml:system/etc/permissions/android.hardware.bluetooth.xml \
     frameworks/native/data/etc/tablet_core_hardware.xml:system/etc/permissions/tablet_core_hardware.xml \
-#    system/bluetooth/data/main.nonsmartphone.conf:system/etc/bluetooth/main.conf
+#   system/bluetooth/data/main.nonsmartphone.conf:system/etc/bluetooth/main.conf
 
 # rtl8723au bt + wifi
 PRODUCT_COPY_FILES += \
-	device/softwinner/wing-common/hardware/realtek/bluetooth/firmware/rtl8723au/rtl8723a_config:system/etc/firmware/rtl8723a_config \
-	device/softwinner/wing-common/hardware/realtek/bluetooth/firmware/rtl8723au/rtl8723a_fw:system/etc/firmware/rtl8723a_fw \
-#	device/softwinner/wing-common/hardware/realtek/bluetooth/firmware/rtl8723au/rtk_btusb.ko:system/vendor/modules/rtk_btusb.ko
+    device/softwinner/wing-common/hardware/realtek/bluetooth/firmware/rtl8723au/rtl8723a_config:system/etc/firmware/rtl8723a_config \
+    device/softwinner/wing-common/hardware/realtek/bluetooth/firmware/rtl8723au/rtl8723a_fw:system/etc/firmware/rtl8723a_fw \
+#   device/softwinner/wing-common/hardware/realtek/bluetooth/firmware/rtl8723au/rtk_btusb.ko:system/vendor/modules/rtk_btusb.ko
 
 # rtl8723as bt fw and config
 #PRODUCT_COPY_FILES += \
@@ -142,7 +143,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
 # When set ro.sys.adaptive_memory=1, firmware can adaptive different dram size.
 # And dalvik vm parameters configuration will become invalid.
 PRODUCT_PROPERTY_OVERRIDES += \
-	ro.sys.adaptive_memory=1
+    ro.sys.storage_type = emulated \
+    ro.sys.adaptive_memory=1
 
 # dalvik vm parameters
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -156,7 +158,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # drm
 PRODUCT_PROPERTY_OVERRIDES += \
-	drm.service.enabled=false
+    drm.service.enabled=false
 
 # usb
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -169,6 +171,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.property.tabletUI=false \
     ro.sf.lcd_density=120 \
     ro.property.fontScale=1.10 \
+    ro.sf.hwrotation=0 \
     debug.hwui.render_dirty_regions=false
 
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -179,16 +182,15 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.setupwizard.mode=DISABLED \
     ro.sys.bootfast=true
 
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.property.bluetooth.rtk8723a=true
+
 # default language setting
 PRODUCT_PROPERTY_OVERRIDES += \
-	persist.sys.country=CN \
-   	persist.sys.timezone=Asia/Shanghai \
-	persist.sys.language=zh
-	ro.property.bluetooth.rtk8723a=true
+    persist.sys.country=CN \
+    persist.sys.language=zh
 
 $(call inherit-product-if-exists, device/softwinner/wing-imotom/modules/modules.mk)
-include device/softwinner/wing-common/prebuild/google/products/gms.mk
-#include device/softwinner/wing-common/prebuild/framework_aw/framework_aw.mk
 
 # Overrides
 PRODUCT_CHARACTERISTICS := tablet
@@ -197,3 +199,8 @@ PRODUCT_NAME := wing_imotom
 PRODUCT_DEVICE := wing-imotom
 PRODUCT_MODEL := AOSP on imotom
 PRODUCT_MANUFACTURER := GUANGZHOU IMOTOM CO,. Ltd
+
+PRODUCT_PROPERTY_OVERRIDES += \
+    persist.sys.timezone=Asia/Shanghai
+
+include device/softwinner/wing-common/prebuild/google/products/gms.mk
