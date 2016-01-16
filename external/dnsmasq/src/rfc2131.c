@@ -117,6 +117,8 @@ static int prune_vendor_opts(struct dhcp_netid *netid);
 static struct dhcp_opt *pxe_opts(int pxe_arch, struct dhcp_netid *netid);
 struct dhcp_boot *find_boot(struct dhcp_netid *netid);
 
+static int find_context(struct in_addr local, int if_index,
+                        struct in_addr netmask, struct in_addr broadcast, void *vparam);
   
 size_t dhcp_reply(struct dhcp_context *context, char *iface_name, int int_index,
 		  size_t sz, time_t now, int unicast_dest, int *is_inform)
@@ -137,7 +139,7 @@ size_t dhcp_reply(struct dhcp_context *context, char *iface_name, int int_index,
   unsigned int time;
   struct dhcp_config *config;
   struct dhcp_netid *netid;
-  struct in_addr subnet_addr, fallback, override;
+  struct in_addr subnet_addr, fallback, override, iface_addr;
   unsigned short fuzz = 0;
   unsigned int mess_type = 0;
   unsigned char fqdn_flags = 0;
@@ -857,8 +859,43 @@ size_t dhcp_reply(struct dhcp_context *context, char *iface_name, int int_index,
 	}
       else
 	/* make sure this host gets a different address next time. */
+#if 0
 	for (; context; context = context->current)
 	  context->addr_epoch++;
+#else
+	{
+	  if (!strcmp(iface_name, ML_IFACE))
+	    {
+	      my_syslog(MS_DHCP | LOG_INFO, _("Get DHCPDECLINE on %s, change subnet"), iface_name);
+
+	      for (context = daemon->dhcp; context; context = context->next)
+	        context->current = context->next;
+
+	      if (!iface_enumerate(NULL, find_context, NULL))
+	        return 0;
+
+	      for (context = daemon->dhcp; context; context = context->next)
+	        {
+	          if (context->current == context->next)
+	            {
+	              strcpy(daemon->dhcp_buff, inet_ntoa(context->start));
+	              strcpy(daemon->dhcp_buff2, inet_ntoa(context->end));
+	              my_syslog(MS_DHCP | LOG_INFO, _("Get Available DHCP range: %s -- %s, mask: %s"), daemon->dhcp_buff, daemon->dhcp_buff2, inet_ntoa(context->netmask));
+	              break;
+	            }
+	        }
+	      if (ifc_init())
+	        return 0;
+	      ifc_get_addr(iface_name, &iface_addr.s_addr);
+	      ifc_remove_host_routes(iface_name);
+	      ifc_del_address(iface_name, inet_ntoa(iface_addr), 24);
+	      ifc_add_address(iface_name, daemon->dhcp_buff, 24);
+	    }
+	  else
+	    for (; context; context = context->current)
+	      context->addr_epoch++;
+	}
+#endif
       
       return 0;
 
@@ -2320,6 +2357,47 @@ static void do_options(struct dhcp_context *context,
       mess->file[0] = f0;
       mess->sname[0] = s0;
     }
+}
+
+static int find_context(struct in_addr local, int if_index,
+                        struct in_addr netmask, struct in_addr broadcast, void *vparam)
+{
+  struct dhcp_context *context;
+
+#if 0
+  struct ifreq ifr;
+  indextoname(daemon->dhcpfd, if_index, ifr.ifr_name);
+  strcpy(daemon->namebuff, inet_ntoa(local));
+  my_syslog(MS_DHCP | LOG_INFO, _("find_context local %s, iface %s, netmask %s"), daemon->namebuff, ifr.ifr_name, inet_ntoa(netmask));
+#endif
+
+  for (context = daemon->dhcp; context; context = context->next)
+    {
+      if ((is_same_net(local, context->start, netmask) &&
+           is_same_net(local, context->end, netmask)) || context->start.s_addr == context->end.s_addr )
+        {
+
+          if (context->next == context->current)
+            {
+
+              context->current = context;
+            }
+        }
+    }
+
+#if 0
+  for (context = daemon->dhcp; context; context = context->next)
+    {
+      if (context->current == context->next)
+        {
+          strcpy(daemon->dhcp_buff, inet_ntoa(context->start));
+          strcpy(daemon->dhcp_buff2, inet_ntoa(context->end));
+          my_syslog(MS_DHCP | LOG_INFO, _("find_context Available DHCP range: %s -- %s, mask: %s"), daemon->dhcp_buff, daemon->dhcp_buff2, inet_ntoa(context->netmask));
+        }
+    }
+#endif
+
+  return 1;
 }
 
 #endif

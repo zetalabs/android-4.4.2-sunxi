@@ -12,6 +12,6 @@ LOCAL_C_INCLUDES := external/dnsmasq/src
 
 LOCAL_CFLAGS := -O2 -g -W -Wall -D__ANDROID__ -DNO_IPV6 -DNO_TFTP -DNO_SCRIPT
 LOCAL_SYSTEM_SHARED_LIBRARIES := libc
-LOCAL_SHARED_LIBRARIES := libcutils liblog
+LOCAL_SHARED_LIBRARIES := libcutils liblog libnetutils
 
 include $(BUILD_EXECUTABLE)
