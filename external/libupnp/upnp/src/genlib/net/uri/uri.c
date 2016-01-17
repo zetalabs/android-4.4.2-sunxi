@@ -2,7 +2,7 @@
  *
  * Copyright (c) 2000-2003 Intel Corporation 
  * All rights reserved. 
- * Copyright (c) 2012 France Telecom All rights reserved.
+ * Copyright (c) 2012 France Telecom All rights reserved. 
  *
  * Redistribution and use in source and binary forms, with or without 
  * modification, are permitted provided that the following conditions are met: 
@@ -325,7 +325,6 @@ static int parse_hostport(
 	const char *in,
 	/*! [out] Output parameter where the host and port are represented as
 	 * an internet address. */
-	unsigned short int defaultPort,
 	hostport_type *out)
 {
 	char workbuf[256];
@@ -423,7 +422,7 @@ static int parse_hostport(
 			return UPNP_E_INVALID_URL;
 	} else
 		/* Port was not specified, use default port. */
-		port = defaultPort;
+		port = 80u;
 	/* The length of the host and port string can be calculated by */
 	/* subtracting pointers. */
 	hostport_size = (size_t)c - (size_t)workbuf;
@@ -700,7 +699,6 @@ int parse_uri(const char *in, size_t max, uri_type *out)
 	int begin_path = 0;
 	size_t begin_hostport = (size_t)0;
 	size_t begin_fragment = (size_t)0;
-	unsigned short int defaultPort = 80;
 
 	begin_hostport = parse_scheme(in, max, &out->scheme);
 	if (begin_hostport) {
@@ -715,11 +713,7 @@ int parse_uri(const char *in, size_t max, uri_type *out)
 	    in[begin_hostport] == '/' &&
 	    in[begin_hostport + (size_t)1] == '/') {
 		begin_hostport += (size_t)2;
-		if (token_string_casecmp(&out->scheme, "https") == 0) {
-			defaultPort = 443;
-		}
 		begin_path = parse_hostport(&in[begin_hostport],
-			defaultPort,
 			&out->hostport);
 		if (begin_path >= 0) {
 			begin_path += (int)begin_hostport;

@@ -55,9 +55,8 @@
 
 /* entity positions */
 
-#define NUM_HTTP_METHODS 11
+#define NUM_HTTP_METHODS 9
 static str_int_entry Http_Method_Table[NUM_HTTP_METHODS] = {
-	{"DELETE", HTTPMETHOD_DELETE},
 	{"GET", HTTPMETHOD_GET},
 	{"HEAD", HTTPMETHOD_HEAD},
 	{"M-POST", HTTPMETHOD_MPOST},
@@ -67,7 +66,6 @@ static str_int_entry Http_Method_Table[NUM_HTTP_METHODS] = {
 	{"SUBSCRIBE", HTTPMETHOD_SUBSCRIBE},
 	{"UNSUBSCRIBE", HTTPMETHOD_UNSUBSCRIBE},
 	{"POST", SOAPMETHOD_POST},
-	{"PUT", HTTPMETHOD_PUT}
 };
 
 #define NUM_HTTP_HEADER_NAMES 33

@@ -86,20 +86,16 @@ typedef enum
 
 /* end of private section. */
 
-/* method in a HTTP request.
- * IMPORTANT: The enum values of the standard HTTP method should match
- * those of Upnp_HttpMethod enum defined in upnp.h */
+/* method in a HTTP request. */
 typedef enum
 {
-	HTTPMETHOD_PUT = 0,
-	HTTPMETHOD_DELETE = 1,
-	HTTPMETHOD_GET = 2,
-	HTTPMETHOD_HEAD = 3,
-	HTTPMETHOD_POST = 4,
+	HTTPMETHOD_POST, 
 	HTTPMETHOD_MPOST, 
 	HTTPMETHOD_SUBSCRIBE, 
 	HTTPMETHOD_UNSUBSCRIBE, 
 	HTTPMETHOD_NOTIFY, 
+	HTTPMETHOD_GET,
+	HTTPMETHOD_HEAD, 
 	HTTPMETHOD_MSEARCH, 
 	HTTPMETHOD_UNKNOWN,
 	SOAPMETHOD_POST,

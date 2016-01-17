@@ -40,16 +40,16 @@
  ***************************************************************************/ 
 
 /** The library version (string) e.g. "1.3.0" */
-#define UPNP_VERSION_STRING "1.8.0"
+#define UPNP_VERSION_STRING "1.6.19"
 
 /** Major version of the library */
 #define UPNP_VERSION_MAJOR 1
 
 /** Minor version of the library */
-#define UPNP_VERSION_MINOR 8
+#define UPNP_VERSION_MINOR 6
 
 /** Patch version of the library */
-#define UPNP_VERSION_PATCH 0
+#define UPNP_VERSION_PATCH 19
 
 /** The library version (numeric) e.g. 10300 means version 1.3.0 */
 #define UPNP_VERSION	\
@@ -82,7 +82,7 @@
 
 /** Defined to 1 if the library has been compiled with DEBUG enabled 
  *  (i.e. configure --enable-debug) : <upnp/upnpdebug.h> file is available */
-#define UPNP_HAVE_DEBUG 1
+/* #undef UPNP_HAVE_DEBUG */
 
 
 /** Defined to 1 if the library has been compiled with client API enabled 
@@ -131,10 +131,6 @@
 /** Defined to 1 if the library has been compiled with unspecified SERVER
  * header (i.e. configure --enable-unspecified_server) */
 /* #undef UPNP_ENABLE_UNSPECIFIED_SERVER */
-
-/** Defined to 1 if the library has been compiled with OpenSSL support
- *  (i.e. configure --enable-open_ssl) */
-/* #undef UPNP_ENABLE_OPEN_SSL */
 
 #endif /* UPNP_CONFIG_H */
 

@@ -74,6 +74,7 @@ PRODUCT_PACKAGES += \
     libstagefright_omx \
     libstagefright_yuv \
     libusbhost \
+    libupnp \
     libutils \
     libvisualizer \
     libvorbisidec \

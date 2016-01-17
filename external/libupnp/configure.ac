@@ -9,7 +9,7 @@
 
 AC_PREREQ(2.60)
 
-AC_INIT([libupnp], [1.8.0], [mroberto@users.sourceforge.net])
+AC_INIT([libupnp], [1.6.19], [mroberto@users.sourceforge.net])
 dnl ############################################################################
 dnl # *Independently* of the above libupnp package version, the libtool version
 dnl # of the 3 libraries need to be updated whenever there is a change released:
@@ -316,26 +316,34 @@ dnl ############################################################################
 dnl # Release 1.6.18:
 dnl # "current:revision:age"
 dnl #
-dnl # -
+dnl # - Code has changed in ixml
+dnl #   revision: 7 -> 8
+dnl # - Code has changed in threadutil
+dnl #   revision: 2 -> 3
+dnl # - Code has changed in upnp
+dnl #   revision: 1 -> 2
 dnl #
-dnl #AC_SUBST([LT_VERSION_IXML],       [::])
-dnl #AC_SUBST([LT_VERSION_THREADUTIL], [::])
-dnl #AC_SUBST([LT_VERSION_UPNP],       [::])
+dnl #AC_SUBST([LT_VERSION_IXML],       [2:8:0])
+dnl #AC_SUBST([LT_VERSION_THREADUTIL], [6:3:0])
+dnl #AC_SUBST([LT_VERSION_UPNP],       [9:2:3])
 dnl #
 dnl ############################################################################
-dnl # Release 1.8.0:
+dnl # Release 1.6.19:
 dnl # "current:revision:age"
 dnl #
-dnl # - Start from a new ground.
+dnl # - Code has changed in threadutil
+dnl #   revision: 3 -> 4
+dnl # - Code has changed in upnp
+dnl #   revision: 2 -> 3
 dnl #
-dnl #AC_SUBST([LT_VERSION_IXML],       [10:0:0])
-dnl #AC_SUBST([LT_VERSION_THREADUTIL], [10:0:0])
-dnl #AC_SUBST([LT_VERSION_UPNP],       [10:0:0])
+dnl #AC_SUBST([LT_VERSION_IXML],       [2:8:0])
+dnl #AC_SUBST([LT_VERSION_THREADUTIL], [6:4:0])
+dnl #AC_SUBST([LT_VERSION_UPNP],       [9:3:3])
 dnl #
 dnl ############################################################################
-AC_SUBST([LT_VERSION_IXML],       [10:0:0])
-AC_SUBST([LT_VERSION_THREADUTIL], [10:0:0])
-AC_SUBST([LT_VERSION_UPNP],       [10:0:0])
+AC_SUBST([LT_VERSION_IXML],       [2:8:0])
+AC_SUBST([LT_VERSION_THREADUTIL], [6:4:0])
+AC_SUBST([LT_VERSION_UPNP],       [9:3:3])
 dnl ############################################################################
 dnl # Repeating the algorithm to place it closer to the modificatin place:
 dnl # 	- library code modified:		revision++
@@ -462,11 +470,6 @@ if test "x$enable_unspecified_server" = xyes ; then
         AC_DEFINE(UPNP_ENABLE_UNSPECIFIED_SERVER, 1, [see upnpconfig.h])
 fi
 
-RT_BOOL_ARG_ENABLE([open_ssl], [no], [open-ssl support])
-if test "x$enable_open_ssl" = xyes ; then
-        AC_DEFINE(UPNP_ENABLE_OPEN_SSL, 1, [see upnpconfig.h])
-fi
-
 RT_BOOL_ARG_ENABLE([notification_reordering], [yes], [GENA notification reordering in gena_device.c])
 if test "x$enable_notification_reordering" = xyes ; then
         AC_DEFINE(UPNP_ENABLE_NOTIFICATION_REORDERING, 1, [see upnpconfig.h])
@@ -475,11 +478,6 @@ fi
 RT_BOOL_ARG_ENABLE([blocking_tcp_connections], [yes], [blocking TCP connections])
 if test "x$enable_blocking_tcp_connections" = xyes ; then
         AC_DEFINE(UPNP_ENABLE_BLOCKING_TCP_CONNECTIONS, 1, [see upnpconfig.h])
-fi
-
-RT_BOOL_ARG_ENABLE([scriptsupport], [yes], [script support for IXML document tree, see ixml.h])
-if test "x$enable_scriptsupport" = xyes ; then
-        AC_DEFINE(IXML_HAVE_SCRIPTSUPPORT, 1, [see upnpconfig.h])
 fi
 
 
@@ -706,7 +704,6 @@ AC_CONFIG_FILES([
 	upnp/Makefile
 	upnp/doc/Makefile
 	upnp/sample/Makefile
-	upnp/unittest/Makefile
 	docs/dist/Makefile
 	libupnp.pc
 	])

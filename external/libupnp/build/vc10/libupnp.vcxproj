@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug Lib|Win32">
@@ -174,7 +174,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <AdditionalIncludeDirectories>..\inc;..\msvc;..\..\upnp\inc;..\..\upnp\src\inc;..\..\ixml\inc;..\..\ixml\src\inc;..\..\threadutil\inc;..\..\pthreads;..\..\pthreads\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>IXML_HAVE_SCRIPTSUPPORT;WIN32;NDEBUG;RELEASE;_WINDOWS;_USRDLL;LIBUPNP_EXPORTS;UPNP_USE_MSVCPP;_CRT_NONSTDC_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_SECURE_SCL;_SCL_SECURE_NO_WARNINGS;_SCL_SECURE_NO_DEPRECATE;_AFX_SECURE_NO_WARNINGS;_AFX_SECURE_NO_DEPRECATE;_SECURE_ATL;_ATL_NO_COM_SUPPORT;_ATL_SECURE_NO_WARNINGS;_ATL_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;LIBUPNP_EXPORTS;UPNP_USE_MSVCPP;_CRT_NONSTDC_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_SECURE_SCL;_SCL_SECURE_NO_WARNINGS;_SCL_SECURE_NO_DEPRECATE;_AFX_SECURE_NO_WARNINGS;_AFX_SECURE_NO_DEPRECATE;_SECURE_ATL;_ATL_NO_COM_SUPPORT;_ATL_SECURE_NO_WARNINGS;_ATL_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -292,7 +292,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\inc;..\msvc;..\..\upnp\inc;..\..\upnp\src\inc;..\..\ixml\inc;..\..\ixml\src\inc;..\..\threadutil\inc;..\..\pthreads;..\..\pthreads\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>IXML_HAVE_SCRIPTSUPPORT;DEBUG;WIN32;_WINDOWS;_USRDLL;LIBUPNP_EXPORTS;UPNP_USE_MSVCPP;_CRT_NONSTDC_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_SECURE_SCL;_SCL_SECURE_NO_WARNINGS;_SCL_SECURE_NO_DEPRECATE;_AFX_SECURE_NO_WARNINGS;_AFX_SECURE_NO_DEPRECATE;_SECURE_ATL;_ATL_NO_COM_SUPPORT;_ATL_SECURE_NO_WARNINGS;_ATL_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DEBUG;WIN32;_USRDLL;LIBUPNP_EXPORTS;UPNP_USE_MSVCPP;_CRT_NONSTDC_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_SECURE_SCL;_SCL_SECURE_NO_WARNINGS;_SCL_SECURE_NO_DEPRECATE;_AFX_SECURE_NO_WARNINGS;_AFX_SECURE_NO_DEPRECATE;_SECURE_ATL;_ATL_NO_COM_SUPPORT;_ATL_SECURE_NO_WARNINGS;_ATL_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -300,6 +300,7 @@
       </PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
       <BrowseInformation>
       </BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
@@ -317,6 +318,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\pthreads\;..\..\pthreads\lib;$(OutDir)..\lib\ixml;$(OutDir)..\lib\threadutil;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
@@ -404,7 +406,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\inc;..\msvc;..\..\upnp\inc;..\..\upnp\src\inc;..\..\ixml\inc;..\..\ixml\src\inc;..\..\threadutil\inc;..\..\pthreads;..\..\pthreads\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>IXML_HAVE_SCRIPTSUPPORT;WIN32;DEBUG;_WINDOWS;PTW32_STATIC_LIB;UPNP_STATIC_LIB;UPNP_USE_MSVCPP;_CRT_NONSTDC_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_SECURE_SCL;_SCL_SECURE_NO_WARNINGS;_SCL_SECURE_NO_DEPRECATE;_AFX_SECURE_NO_WARNINGS;_AFX_SECURE_NO_DEPRECATE;_SECURE_ATL;_ATL_NO_COM_SUPPORT;_ATL_SECURE_NO_WARNINGS;_ATL_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;DEBUG;_WINDOWS;PTW32_STATIC_LIB;UPNP_STATIC_LIB;UPNP_USE_MSVCPP;_CRT_NONSTDC_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_SECURE_SCL;_SCL_SECURE_NO_WARNINGS;_SCL_SECURE_NO_DEPRECATE;_AFX_SECURE_NO_WARNINGS;_AFX_SECURE_NO_DEPRECATE;_SECURE_ATL;_ATL_NO_COM_SUPPORT;_ATL_SECURE_NO_WARNINGS;_ATL_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -493,7 +495,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <AdditionalIncludeDirectories>..\inc;..\msvc;..\..\upnp\inc;..\..\upnp\src\inc;..\..\ixml\inc;..\..\ixml\src\inc;..\..\threadutil\inc;..\..\pthreads;..\..\pthreads\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>IXML_HAVE_SCRIPTSUPPORT;WIN32;NDEBUG;RELEASE;_WINDOWS;PTW32_STATIC_LIB;UPNP_STATIC_LIB;UPNP_USE_MSVCPP;_CRT_NONSTDC_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_SECURE_SCL;_SCL_SECURE_NO_WARNINGS;_SCL_SECURE_NO_DEPRECATE;_AFX_SECURE_NO_WARNINGS;_AFX_SECURE_NO_DEPRECATE;_SECURE_ATL;_ATL_NO_COM_SUPPORT;_ATL_SECURE_NO_WARNINGS;_ATL_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;RELEASE;_WINDOWS;PTW32_STATIC_LIB;UPNP_STATIC_LIB;UPNP_USE_MSVCPP;_CRT_NONSTDC_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_SECURE_SCL;_SCL_SECURE_NO_WARNINGS;_SCL_SECURE_NO_DEPRECATE;_AFX_SECURE_NO_WARNINGS;_AFX_SECURE_NO_DEPRECATE;_SECURE_ATL;_ATL_NO_COM_SUPPORT;_ATL_SECURE_NO_WARNINGS;_ATL_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -572,20 +574,31 @@
   <ItemGroup>
     <ClCompile Include="..\..\upnp\src\api\ActionComplete.c" />
     <ClCompile Include="..\..\upnp\src\api\ActionRequest.c" />
+    <ClCompile Include="..\..\ixml\src\attr.c" />
     <ClCompile Include="..\..\upnp\src\genlib\client_table\client_table.c" />
     <ClCompile Include="..\..\upnp\src\genlib\client_table\ClientSubscription.c" />
     <ClCompile Include="..\..\upnp\src\api\Discovery.c" />
+    <ClCompile Include="..\..\ixml\src\document.c" />
+    <ClCompile Include="..\..\ixml\src\element.c" />
     <ClCompile Include="..\..\upnp\src\api\Event.c" />
     <ClCompile Include="..\..\upnp\src\api\EventSubscribe.c" />
     <ClCompile Include="..\..\upnp\src\api\FileInfo.c" />
+    <ClCompile Include="..\..\threadutil\src\FreeList.c" />
     <ClCompile Include="..\..\upnp\src\gena\gena_callback2.c" />
     <ClCompile Include="..\..\upnp\src\gena\gena_ctrlpt.c" />
     <ClCompile Include="..\..\upnp\src\gena\gena_device.c" />
     <ClCompile Include="..\..\upnp\src\genlib\net\http\httpparser.c" />
     <ClCompile Include="..\..\upnp\src\genlib\net\http\httpreadwrite.c" />
+    <ClCompile Include="..\..\ixml\src\ixml.c" />
+    <ClCompile Include="..\..\ixml\src\ixmlmembuf.c" />
+    <ClCompile Include="..\..\ixml\src\ixmlparser.c" />
+    <ClCompile Include="..\..\threadutil\src\LinkedList.c" />
     <ClCompile Include="..\..\upnp\src\uuid\md5.c" />
     <ClCompile Include="..\..\upnp\src\genlib\util\membuffer.c" />
     <ClCompile Include="..\..\upnp\src\genlib\miniserver\miniserver.c" />
+    <ClCompile Include="..\..\ixml\src\namedNodeMap.c" />
+    <ClCompile Include="..\..\ixml\src\node.c" />
+    <ClCompile Include="..\..\ixml\src\nodeList.c" />
     <ClCompile Include="..\..\upnp\src\genlib\net\http\parsetools.c" />
     <ClCompile Include="..\..\upnp\src\genlib\service_table\service_table.c" />
     <ClCompile Include="..\..\upnp\src\soap\soap_common.c" />
@@ -602,6 +615,8 @@
     <ClCompile Include="..\..\upnp\src\genlib\util\strintmap.c" />
     <ClCompile Include="..\..\upnp\src\api\SubscriptionRequest.c" />
     <ClCompile Include="..\..\upnp\src\uuid\sysdep.c" />
+    <ClCompile Include="..\..\threadutil\src\ThreadPool.c" />
+    <ClCompile Include="..\..\threadutil\src\TimerThread.c" />
     <ClCompile Include="..\..\upnp\src\genlib\util\upnp_timeout.c" />
     <ClCompile Include="..\..\upnp\src\api\upnpapi.c" />
     <ClCompile Include="..\..\upnp\src\api\upnpdebug.c" />

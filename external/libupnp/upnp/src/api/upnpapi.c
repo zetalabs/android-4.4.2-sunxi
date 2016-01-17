@@ -78,10 +78,6 @@
 	#include <sys/types.h>
 #endif
 
-#ifdef UPNP_ENABLE_OPEN_SSL
-#include <openssl/ssl.h>
-#endif
-
 #ifndef IN6_IS_ADDR_GLOBAL
 #define IN6_IS_ADDR_GLOBAL(a) \
 		((((__const uint32_t *) (a))[0] & htonl((uint32_t)0x70000000)) \
@@ -184,12 +180,6 @@ int UpnpSdkDeviceregisteredV6 = 0;
 Upnp_SID gUpnpSdkNLSuuid;
 #endif /* UPNP_HAVE_OPTSSDP */
 
-/*! Global variable used as to store the OpenSSL context object
- * to be used for all SSL/TLS connections
- */
-#ifdef UPNP_ENABLE_OPEN_SSL
-SSL_CTX *gSslCtx = NULL;
-#endif
 
 /*!
  * \brief (Windows Only) Initializes the Windows Winsock library.
@@ -544,24 +534,6 @@ exit_function:
 }
 #endif
 
-#ifdef UPNP_ENABLE_OPEN_SSL
-int UpnpInitSslContext(int initOpenSslLib, const SSL_METHOD *sslMethod)
-{
-	if (gSslCtx)
-		return UPNP_E_INIT;
-	if (initOpenSslLib) {
-		SSL_load_error_strings();
-		SSL_library_init();
-		OpenSSL_add_all_algorithms();
-	}
-	gSslCtx = SSL_CTX_new(sslMethod);
-	if (!gSslCtx) {
-		return UPNP_E_INIT_FAILED;
-	}
-	return UPNP_E_SUCCESS;
-}
-#endif
-
 #ifdef DEBUG
 /*!
  * \brief Prints thread pool statistics.
@@ -631,12 +603,7 @@ int UpnpFinish(void)
 	UpnpClient_Handle client_handle;
 #endif
 	struct Handle_Info *temp;
-#ifdef UPNP_ENABLE_OPEN_SSL
-    if (gSslCtx) {
-        SSL_CTX_free(gSslCtx);
-        gSslCtx = NULL;
-    }
-#endif
+
 	if (UpnpSdkInit != 1)
 		return UPNP_E_FINISH;
 	UpnpPrintf(UPNP_INFO, API, __FILE__, __LINE__,
@@ -2527,7 +2494,7 @@ int UpnpAcceptSubscriptionExt(
 	const char *DevID_const,
 	const char *ServName_const,
 	IXML_Document *PropSet,
-	const Upnp_SID SubsId)
+	Upnp_SID SubsId)
 {
 	int ret = 0;
 	int line = 0;
@@ -3068,12 +3035,8 @@ int UpnpOpenHttpPost(
 	int contentLength,
 	int timeout)
 {
-	int status = http_OpenHttpConnection(url, handle, timeout);
-	if (status == UPNP_E_SUCCESS) {
-		return http_MakeHttpRequest(HTTPMETHOD_POST, url, handle, NULL, contentType,
-					    contentLength, timeout);
-	}
-	return status;
+	return http_OpenHttpPost(
+		url, handle, contentType, contentLength, timeout);
 }
 
 
@@ -3083,7 +3046,7 @@ int UpnpWriteHttpPost(
 	size_t *size,
 	int timeout)
 {
-	return http_WriteHttpRequest(handle, buf, size, timeout);
+	return http_WriteHttpPost(handle, buf, size, timeout);
 }
 
 
@@ -3092,56 +3055,35 @@ int UpnpCloseHttpPost(
 	int *httpStatus,
 	int timeout)
 {
-	int status = http_EndHttpRequest(handle, timeout);
-	if (status == UPNP_E_SUCCESS) {
-		status = http_GetHttpResponse(handle, NULL, NULL, NULL, httpStatus, timeout);
-	}
-	status = http_CloseHttpConnection(handle);
-	return status;}
+	return http_CloseHttpPost(handle, httpStatus, timeout);
+}
 
 
 int UpnpOpenHttpGet(
-	const char *url,
-	void **handle,
+	const char *url_str,
+	void **Handle,
 	char **contentType,
 	int *contentLength,
 	int *httpStatus,
 	int timeout)
 {
-	int status = UpnpOpenHttpConnection(url, handle, timeout);
-	if (status == UPNP_E_SUCCESS) {
-		status = UpnpMakeHttpRequest(HTTPMETHOD_GET, url, *handle, NULL, NULL, 0, timeout);
-	}
-	if (status == UPNP_E_SUCCESS) {
-		status = UpnpEndHttpRequest(*handle, timeout);
-	}
-	if (status == UPNP_E_SUCCESS) {
-		status = UpnpGetHttpResponse(*handle, NULL, contentType, contentLength, httpStatus, timeout);
-	}
-	return status;
+	return http_OpenHttpGet(
+		url_str, Handle, contentType, contentLength, httpStatus, timeout);
 }
 
 
 int UpnpOpenHttpGetProxy(
-	const char *url,
+	const char *url_str,
 	const char *proxy_str,
-	void **handle,
+	void **Handle,
 	char **contentType,
 	int *contentLength,
 	int *httpStatus,
 	int timeout)
 {
-	int status = UpnpOpenHttpConnection(proxy_str, handle, timeout);
-	if (status == UPNP_E_SUCCESS) {
-		status = UpnpMakeHttpRequest(HTTPMETHOD_GET, url, *handle, NULL, NULL, 0, timeout);
-	}
-	if (status == UPNP_E_SUCCESS) {
-		status = UpnpEndHttpRequest(*handle, timeout);
-	}
-	if (status == UPNP_E_SUCCESS) {
-		status = UpnpGetHttpResponse(*handle, NULL, contentType, contentLength, httpStatus, timeout);
-	}
-	return status;
+	return http_OpenHttpGetProxy(
+		url_str, proxy_str, Handle, contentType, contentLength,
+		httpStatus, timeout);
 }
 
 
@@ -3169,70 +3111,19 @@ int UpnpCancelHttpGet(void *Handle)
 
 int UpnpCloseHttpGet(void *Handle)
 {
-	return UpnpCloseHttpConnection(Handle);
+	return http_CloseHttpGet(Handle);
 }
 
 
 int UpnpReadHttpGet(void *Handle, char *buf, size_t *size, int timeout)
 {
-	return http_ReadHttpResponse(Handle, buf, size, timeout);
+	return http_ReadHttpGet(Handle, buf, size, timeout);
 }
 
 
 int UpnpHttpGetProgress(void *Handle, size_t *length, size_t *total)
 {
 	return http_HttpGetProgress(Handle, length, total);
-}
-
-
-int UpnpOpenHttpConnection(const char *url,
-			   void **handle, int timeout)
-{
-	return http_OpenHttpConnection(url, handle, timeout);
-}
-
-
-int UpnpMakeHttpRequest(Upnp_HttpMethod method, const char *url,
-			void *handle, UpnpString *headers,
-			const char *contentType, int contentLength,
-			int timeout)
-{
-	return http_MakeHttpRequest(method, url, handle, headers, contentType,
-				    contentLength, timeout);
-}
-
-int UpnpWriteHttpRequest(void *handle, char *buf,
-			 size_t *size, int timeout)
-{
-	return http_WriteHttpRequest(handle, buf, size, timeout);
-}
-
-
-int UpnpEndHttpRequest(void *handle, int timeout)
-{
-	return http_EndHttpRequest(handle, timeout);
-}
-
-
-int UpnpGetHttpResponse(void *handle, UpnpString *headers,
-			char **contentType, int *contentLength, int *httpStatus,
-			int timeout)
-{
-	return http_GetHttpResponse(handle, headers, contentType, contentLength,
-				    httpStatus, timeout);
-}
-
-
-int UpnpReadHttpResponse(void *handle, char *buf,
-			 size_t *size, int timeout)
-{
-	return http_ReadHttpResponse(handle, buf, size, timeout);
-}
-
-
-int UpnpCloseHttpConnection(void *handle)
-{
-	return http_CloseHttpConnection(handle);
 }
 
 
@@ -3706,7 +3597,7 @@ int UpnpGetIfInfo(const char *IfName)
 #ifdef INCLUDE_CLIENT_APIS
 void UpnpThreadDistribution(struct UpnpNonblockParam *Param)
 {
-	int errCode = 0;
+	/*int errCode = 0;*/
 
 	UpnpPrintf(UPNP_ALL, API, __FILE__, __LINE__,
 		"Inside UpnpThreadDistribution \n");
@@ -3714,85 +3605,92 @@ void UpnpThreadDistribution(struct UpnpNonblockParam *Param)
 	switch (Param->FunName) {
 #if EXCLUDE_GENA == 0
 	case SUBSCRIBE: {
-		UpnpEventSubscribe *evt = UpnpEventSubscribe_new();
+		struct Upnp_Event_Subscribe Evt;
 		UpnpString *Sid = UpnpString_new();
-
-		UpnpEventSubscribe_strcpy_PublisherUrl(evt, Param->Url);
-		errCode = genaSubscribe(
+		UpnpString *Url = UpnpString_new();
+		UpnpString_set_String(Url, Param->Url);
+		memset(&Evt, 0, sizeof(Evt));
+		Evt.ErrCode = genaSubscribe(
 			Param->Handle,
-			UpnpEventSubscribe_get_PublisherUrl(evt),
+			Url,
 			(int *)&Param->TimeOut,
 			Sid);
-		UpnpEventSubscribe_set_ErrCode(evt, errCode);
-		UpnpEventSubscribe_set_TimeOut(evt, Param->TimeOut);
-		UpnpEventSubscribe_set_SID(evt, Sid);
-		Param->Fun(UPNP_EVENT_SUBSCRIBE_COMPLETE, evt, Param->Cookie);
- 		UpnpString_delete(Sid);
-	    	UpnpEventSubscribe_delete(evt);
+		strncpy(Evt.PublisherUrl, Param->Url,
+			sizeof(Evt.PublisherUrl) - 1);
+		Evt.TimeOut = Param->TimeOut;
+		strncpy((char *)Evt.Sid, UpnpString_get_String(Sid),
+			sizeof(Evt.Sid) - 1);
+		Param->Fun(UPNP_EVENT_SUBSCRIBE_COMPLETE, &Evt, Param->Cookie);
+		UpnpString_delete(Sid);
+		UpnpString_delete(Url);
 		free(Param);
 		break;
 	}
 	case UNSUBSCRIBE: {
-		UpnpEventSubscribe *evt = UpnpEventSubscribe_new();
-		UpnpEventSubscribe_strcpy_SID(evt, Param->SubsId);
-		errCode = genaUnSubscribe(
+		struct Upnp_Event_Subscribe Evt;
+		UpnpString *Sid = UpnpString_new();
+		UpnpString_set_String(Sid, Param->SubsId);
+		memset(&Evt, 0, sizeof(Evt));
+		Evt.ErrCode = genaUnSubscribe(
 			Param->Handle,
-			UpnpEventSubscribe_get_SID(evt));
-		UpnpEventSubscribe_set_ErrCode(evt, errCode);
-		UpnpEventSubscribe_strcpy_PublisherUrl(evt, "");
-		UpnpEventSubscribe_set_TimeOut(evt, 0);
-		Param->Fun(UPNP_EVENT_UNSUBSCRIBE_COMPLETE, evt, Param->Cookie);
-		UpnpEventSubscribe_delete(evt);
+			Sid);
+		strncpy((char *)Evt.Sid, UpnpString_get_String(Sid),
+			sizeof(Evt.Sid) - 1);
+		strncpy(Evt.PublisherUrl, "", sizeof(Evt.PublisherUrl) - 1);
+		Evt.TimeOut = 0;
+		Param->Fun(UPNP_EVENT_UNSUBSCRIBE_COMPLETE, &Evt, Param->Cookie);
+		UpnpString_delete(Sid);
 		free(Param);
 		break;
 	}
 	case RENEW: {
-		UpnpEventSubscribe *evt = UpnpEventSubscribe_new();
-		UpnpEventSubscribe_strcpy_SID(evt, Param->SubsId);
-		errCode = genaRenewSubscription(
+		struct Upnp_Event_Subscribe Evt;
+		UpnpString *Sid = UpnpString_new();
+		UpnpString_set_String(Sid, Param->SubsId);
+		memset(&Evt, 0, sizeof(Evt));
+		Evt.ErrCode = genaRenewSubscription(
 			Param->Handle,
-			UpnpEventSubscribe_get_SID(evt),
+			Sid,
 			&Param->TimeOut);
-		UpnpEventSubscribe_set_ErrCode(evt, errCode);
-		UpnpEventSubscribe_set_TimeOut(evt, Param->TimeOut);
-		Param->Fun(UPNP_EVENT_RENEWAL_COMPLETE, evt, Param->Cookie);
-		UpnpEventSubscribe_delete(evt);
+		Evt.TimeOut = Param->TimeOut;
+		strncpy((char *)Evt.Sid, UpnpString_get_String(Sid),
+			sizeof(Evt.Sid) - 1);
+		Param->Fun(UPNP_EVENT_RENEWAL_COMPLETE, &Evt, Param->Cookie);
+		UpnpString_delete(Sid);
 		free(Param);
 		break;
 	}
 #endif /* EXCLUDE_GENA == 0 */
 #if EXCLUDE_SOAP == 0
 	case ACTION: {
-		UpnpActionComplete *Evt = UpnpActionComplete_new();
-		IXML_Document *actionResult = NULL;
-		int errCode = SoapSendAction(
+		struct Upnp_Action_Complete Evt;
+		memset(&Evt, 0, sizeof(Evt));
+		Evt.ActionResult = NULL;
+		Evt.ErrCode = SoapSendAction(
 			Param->Url,
 			Param->ServiceType,
-			Param->Act,
-			&actionResult);
-		UpnpActionComplete_set_ErrCode(Evt, errCode);
-		UpnpActionComplete_set_ActionRequest(Evt, Param->Act);
-		UpnpActionComplete_set_ActionResult(Evt, actionResult);
-		UpnpActionComplete_strcpy_CtrlUrl(Evt, Param->Url);
-		Param->Fun(UPNP_CONTROL_ACTION_COMPLETE, Evt, Param->Cookie);
+			Param->Act, &Evt.ActionResult);
+		Evt.ActionRequest = Param->Act;
+		strncpy(Evt.CtrlUrl, Param->Url, sizeof(Evt.CtrlUrl) - 1);
+		Param->Fun(UPNP_CONTROL_ACTION_COMPLETE, &Evt, Param->Cookie);
+		ixmlDocument_free(Evt.ActionRequest);
+		ixmlDocument_free(Evt.ActionResult);
 		free(Param);
-		UpnpActionComplete_delete(Evt);
 		break;
 	}
 	case STATUS: {
-		UpnpStateVarComplete *Evt = UpnpStateVarComplete_new();
-		DOMString currentVal = NULL;
-		int errCode = SoapGetServiceVarStatus(
+		struct Upnp_State_Var_Complete Evt;
+		memset(&Evt, 0, sizeof(Evt));
+		Evt.ErrCode = SoapGetServiceVarStatus(
 			Param->Url,
 			Param->VarName,
-			&currentVal);
-		UpnpStateVarComplete_set_ErrCode(Evt, errCode);
-		UpnpStateVarComplete_strcpy_CtrlUrl(Evt, Param->Url);
-		UpnpStateVarComplete_strcpy_StateVarName(Evt, Param->VarName);
-		UpnpStateVarComplete_set_CurrentVal(Evt, currentVal);
-		Param->Fun(UPNP_CONTROL_GET_VAR_COMPLETE, Evt, Param->Cookie);
+			&Evt.CurrentVal);
+		strncpy(Evt.StateVarName, Param->VarName,
+			sizeof(Evt.StateVarName) - 1);
+		strncpy(Evt.CtrlUrl, Param->Url, sizeof(Evt.CtrlUrl) - 1);
+		Param->Fun(UPNP_CONTROL_GET_VAR_COMPLETE, &Evt, Param->Cookie);
+		free(Evt.CurrentVal);
 		free(Param);
-		UpnpStateVarComplete_delete(Evt);
 		break;
 	}
 #endif /* EXCLUDE_SOAP == 0 */
@@ -4297,6 +4195,27 @@ int UpnpIsWebserverEnabled(void)
 	return bWebServerState == (WebServerState)WEB_SERVER_ENABLED;
 }
 
+int UpnpSetVirtualDirCallbacks(struct UpnpVirtualDirCallbacks *callbacks)
+{
+	int ret = 0;
+
+	if( UpnpSdkInit != 1 ) {
+		/* SDK is not initialized */
+		return UPNP_E_FINISH;
+	}
+
+	if( callbacks == NULL )
+		return UPNP_E_INVALID_PARAM;
+
+	ret = UpnpVirtualDir_set_GetInfoCallback(callbacks->get_info) == UPNP_E_SUCCESS
+	   && UpnpVirtualDir_set_OpenCallback(callbacks->open) == UPNP_E_SUCCESS
+	   && UpnpVirtualDir_set_ReadCallback(callbacks->read) == UPNP_E_SUCCESS
+	   && UpnpVirtualDir_set_WriteCallback(callbacks->write) == UPNP_E_SUCCESS
+	   && UpnpVirtualDir_set_SeekCallback(callbacks->seek) == UPNP_E_SUCCESS
+	   && UpnpVirtualDir_set_CloseCallback(callbacks->close) == UPNP_E_SUCCESS;
+
+	return ret ? UPNP_E_SUCCESS : UPNP_E_INVALID_PARAM;
+}
 
 int UpnpVirtualDir_set_GetInfoCallback(VDCallback_GetInfo callback)
 {

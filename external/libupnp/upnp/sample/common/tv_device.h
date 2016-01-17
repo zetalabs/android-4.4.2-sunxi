@@ -214,7 +214,7 @@ int TvDeviceStateTableInit(
  */
 int TvDeviceHandleSubscriptionRequest(
 	/*! [in] The subscription request event structure. */
-	const UpnpSubscriptionRequest *sr_event);
+	struct Upnp_Subscription_Request *sr_event);
 
 /*!
  * \brief Called during a get variable request callback.
@@ -224,7 +224,7 @@ int TvDeviceHandleSubscriptionRequest(
  */
 int TvDeviceHandleGetVarRequest(
 	/*! [in,out] The control get variable request event structure. */
-	UpnpStateVarRequest *cgv_event);
+	struct Upnp_State_Var_Request *cgv_event);
 
 /*!
  * \brief Called during an action request callback.
@@ -234,7 +234,7 @@ int TvDeviceHandleGetVarRequest(
  */
 int TvDeviceHandleActionRequest(
 	/*! [in,out] The control action request event structure. */
-	UpnpActionRequest *ca_event);
+	struct Upnp_Action_Request *ca_event);
 
 /*!
  * \brief The callback handler registered with the SDK while registering
@@ -251,7 +251,7 @@ int TvDeviceCallbackEventHandler(
 	/*! [in] The type of callback event. */
 	Upnp_EventType,
 	/*! [in] Data structure containing event data. */
-	const void *Event,
+	void *Event,
 	/*! [in] Optional data specified during callback registration. */
 	void *Cookie);
 

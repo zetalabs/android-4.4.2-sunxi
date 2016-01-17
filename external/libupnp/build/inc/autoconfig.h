@@ -2,7 +2,7 @@
 /* autoconfig.h.in.  Generated from configure.ac by autoheader.  */
 
 /* Define to 1 to compile debug code */
-#define DEBUG 1
+/* #undef DEBUG */
 
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #define HAVE_ARPA_INET_H 1
@@ -82,18 +82,15 @@
 /* Define to 1 if you have the <ws2tcpip.h> header file. */
 /* #undef HAVE_WS2TCPIP_H */
 
-/* see upnpconfig.h */
-#define IXML_HAVE_SCRIPTSUPPORT 1
-
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
    */
 #define LT_OBJDIR ".libs/"
 
 /* Define to 1 to prevent compilation of assert() */
-/* #undef NDEBUG */
+#define NDEBUG 1
 
 /* Define to 1 to prevent some debug code */
-/* #undef NO_DEBUG */
+#define NO_DEBUG 1
 
 /* Define to 1 if your C compiler doesn't accept -c and -o together. */
 /* #undef NO_MINUS_C_MINUS_O */
@@ -108,7 +105,7 @@
 #define PACKAGE_NAME "libupnp"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "libupnp 1.8.0"
+#define PACKAGE_STRING "libupnp 1.6.19"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "libupnp"
@@ -117,7 +114,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.8.0"
+#define PACKAGE_VERSION "1.6.19"
 
 /* Define to necessary symbol if this constant uses a non-standard name on
    your system. */
@@ -136,16 +133,13 @@
 #define UPNP_ENABLE_NOTIFICATION_REORDERING 1
 
 /* see upnpconfig.h */
-/* #undef UPNP_ENABLE_OPEN_SSL */
-
-/* see upnpconfig.h */
 /* #undef UPNP_ENABLE_UNSPECIFIED_SERVER */
 
 /* see upnpconfig.h */
 #define UPNP_HAVE_CLIENT 1
 
 /* see upnpconfig.h */
-#define UPNP_HAVE_DEBUG 1
+/* #undef UPNP_HAVE_DEBUG */
 
 /* see upnpconfig.h */
 #define UPNP_HAVE_DEVICE 1
@@ -175,16 +169,16 @@
 #define UPNP_VERSION_MAJOR 1
 
 /* see upnpconfig.h */
-#define UPNP_VERSION_MINOR 8
+#define UPNP_VERSION_MINOR 6
 
 /* see upnpconfig.h */
-#define UPNP_VERSION_PATCH 0
+#define UPNP_VERSION_PATCH 19
 
 /* see upnpconfig.h */
-#define UPNP_VERSION_STRING "1.8.0"
+#define UPNP_VERSION_STRING "1.6.19"
 
 /* Version number of package */
-#define VERSION "1.8.0"
+#define VERSION "1.6.19"
 
 /* File Offset size */
 #define _FILE_OFFSET_BITS 64

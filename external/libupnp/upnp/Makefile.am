@@ -4,7 +4,7 @@
 # Copyright (C) 2005 Rémi Turboult <r3mi@users.sourceforge.net>
 #
 
-SUBDIRS = doc . sample unittest
+SUBDIRS = doc . sample
 
 AM_CPPFLAGS = \
 	-I$(srcdir)/inc \
@@ -19,21 +19,6 @@ LDADD = \
 
 upnpincludedir = $(includedir)/upnp
 upnpinclude_HEADERS = \
-	inc/ActionComplete.h \
-	inc/ActionRequest.h \
-	inc/Callback.h \
-	inc/Discovery.h \
-	inc/Event.h \
-	inc/EventSubscribe.h \
-	inc/FileInfo.h \
-	inc/list.h \
-	inc/poison.h \
-	inc/StateVarComplete.h \
-	inc/StateVarRequest.h \
-	inc/SubscriptionRequest.h \
-	inc/TemplateInclude.h \
-	inc/TemplateSource.h \
-	inc/TemplateUndef.h \
 	inc/UpnpString.h \
 	inc/upnp.h \
 	inc/upnpdebug.h \
@@ -62,7 +47,6 @@ libupnp_la_LDFLAGS = \
 libupnp_la_SOURCES = \
 	src/inc/config.h \
 	src/inc/client_table.h \
-	src/inc/ClientSubscription.h \
 	src/inc/gena.h \
 	src/inc/gena_ctrlpt.h \
 	src/inc/gena_device.h \
@@ -97,8 +81,7 @@ libupnp_la_SOURCES = \
 # ssdp
 if ENABLE_SSDP
 libupnp_la_SOURCES += \
-	src/ssdp/ssdp_ResultData.c \
-	src/ssdp/ssdp_ResultData.h \
+        src/ssdp/ssdp_ResultData.h \
 	src/ssdp/ssdp_device.c \
 	src/ssdp/ssdp_ctrlpt.c \
 	src/ssdp/ssdp_server.c
@@ -115,13 +98,12 @@ endif
 # genlib
 libupnp_la_SOURCES += \
 	src/genlib/miniserver/miniserver.c \
-	src/genlib/client_table/client_table.c \
-	src/genlib/client_table/ClientSubscription.c \
 	src/genlib/service_table/service_table.c \
 	src/genlib/util/membuffer.c \
 	src/genlib/util/strintmap.c \
 	src/genlib/util/upnp_timeout.c \
 	src/genlib/util/util.c \
+	src/genlib/client_table/client_table.c \
 	src/genlib/net/sock.c \
 	src/genlib/net/http/httpparser.c \
 	src/genlib/net/http/httpreadwrite.c \
@@ -140,15 +122,6 @@ endif
 
 # api
 libupnp_la_SOURCES += \
-	src/api/ActionComplete.c \
-	src/api/ActionRequest.c \
-	src/api/Discovery.c \
-	src/api/Event.c \
-	src/api/EventSubscribe.c \
-	src/api/FileInfo.c \
-	src/api/StateVarComplete.c \
-	src/api/StateVarRequest.c \
-	src/api/SubscriptionRequest.c \
 	src/api/UpnpString.c \
 	src/api/upnpapi.c
 
