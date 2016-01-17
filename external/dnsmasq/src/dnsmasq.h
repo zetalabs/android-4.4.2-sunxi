@@ -116,6 +116,8 @@ extern int capget(cap_user_header_t header, cap_user_data_t data);
 #include <priv.h>
 #endif
 
+#include <netutils/ifc.h>
+
 /* daemon is function in the C library.... */
 #define daemon dnsmasq_daemon
 
@@ -845,6 +847,7 @@ size_t dhcp_reply(struct dhcp_context *context, char *iface_name, int int_index,
 		  size_t sz, time_t now, int unicast_dest, int *is_inform);
 unsigned char *extended_hwaddr(int hwtype, int hwlen, unsigned char *hwaddr, 
 			       int clid_len, unsigned char *clid, int *len_out);
+#define ML_IFACE "ncm0"
 #endif
 
 /* dnsmasq.c */
