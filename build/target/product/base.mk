@@ -21,6 +21,7 @@ PRODUCT_PACKAGES += \
     am \
     android.policy \
     android.test.runner \
+    androidvncserver \
     app_process \
     applypatch \
     bmgr \
@@ -43,6 +44,8 @@ PRODUCT_PACKAGES += \
     libcamera_client \
     libcameraservice \
     libdl \
+    libdvnc_flinger_sdk$(PLATFORM_SDK_VERSION) \
+    libdvnc_gralloc_sdk$(PLATFORM_SDK_VERSION) \
     libeffectproxy \
     libeffects \
     libinput \
