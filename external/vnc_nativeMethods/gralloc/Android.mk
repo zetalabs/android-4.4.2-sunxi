@@ -11,10 +11,10 @@ LOCAL_C_INCLUDES +=	\
 
 #LOCAL_LDLIBS += -ldl
 
-LOCAL_PRELINK_MODULE:=false #override prelink map
+#LOCAL_PRELINK_MODULE:=false #override prelink map
 LOCAL_MODULE := libdvnc_gralloc_sdk$(PLATFORM_SDK_VERSION)
 LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE_PATH := $(LOCAL_PATH)/../libs/$(TARGET_CPU_ABI)
+#LOCAL_MODULE_PATH := $(LOCAL_PATH)/../libs/$(TARGET_CPU_ABI)
 
 LOCAL_SHARED_LIBRARIES := libhardware libcutils
 
