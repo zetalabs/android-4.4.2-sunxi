@@ -38,8 +38,6 @@ struct gralloc_module_t *gralloc;
 struct framebuffer_device_t *fbdev = 0;
 struct alloc_device_t *allocdev = 0;
 buffer_handle_t buf = 0;
-char *buff = 0;
-int buff_len = 0;
 unsigned char* data = 0;
 int stride;
 
@@ -102,14 +100,7 @@ int init_gralloc()
         return rv;
     }
 #else
-    if (!fbdev->dump) {
-        rv = -ENOTSUP;
-        close_gralloc();
-        return rv;
-    }
-    buff_len = screenformat.size;
-    buff = malloc(buff_len);
-    if (!buff) {
+    if (!fbdev->post) {
         rv = -ENOTSUP;
         close_gralloc();
         return rv;
@@ -128,7 +119,7 @@ int init_gralloc()
 #if 0
     rv = fbdev->read(fbdev, buf);
 #else
-    fbdev->dump(fbdev, buff, buff_len);
+    rv = fbdev->post(fbdev, buf);
 #endif
 
     CHECK_RV;
@@ -165,8 +156,6 @@ int init_gralloc()
 
 void close_gralloc()
 {
-    if (buff)
-        free(buff);
     if (buf)
         allocdev->free(allocdev, buf);
     if (allocdev)
@@ -187,7 +176,7 @@ unsigned char *readfb_gralloc ()
 #if 0
     rv = fbdev->read(fbdev, buf);
 #else
-    fbdev->dump(fbdev, buff, buff_len);
+    rv = fbdev->post(fbdev, buf);
 #endif
 
     CHECK_RV_P;
