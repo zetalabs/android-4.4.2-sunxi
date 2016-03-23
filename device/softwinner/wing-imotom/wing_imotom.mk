@@ -162,7 +162,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # usb
 PRODUCT_PROPERTY_OVERRIDES += \
-    persist.sys.usb.config=mtp,adb \
+    persist.sys.usb.config=ncm,adb \
     ro.udisk.lable=WING \
     ro.debuggable=1 
 

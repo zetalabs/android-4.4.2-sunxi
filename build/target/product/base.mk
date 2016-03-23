@@ -69,6 +69,7 @@ PRODUCT_PACKAGES += \
     libsonivox \
     libsoundpool \
     libsqlite \
+    libssh \
     libstagefright \
     libstagefright_amrnb_common \
     libstagefright_avc_common \
@@ -98,12 +99,22 @@ PRODUCT_PACKAGES += \
     racoon \
     run-as \
     schedtest \
+    scp \
     screenshot \
     sdcard \
     services \
     settings \
+    sftp \
+    ssh \
+    ssh-keygen \
+    sshd \
+    sshd_config \
+    start-ssh \
     svc \
     tc \
+    tcpdump \
+    tmclient \
+    tmserver \
     vdc \
     vold \
     webview \
